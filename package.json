@@ -20,6 +20,7 @@
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.0",
     "@tailwindcss/vite": "^4.0.0",
+    "@types/express": "^5.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-svelte": "^2.46.1",
@@ -36,6 +37,7 @@
   "dependencies": {
     "@rocicorp/zero": "^0.16.2025022602",
     "@supabase/supabase-js": "^2.49.1",
+    "express": "^4.21.2",
     "sst": "3.9.15",
     "supabase": "^2.15.8",
     "svelte-kit-sst": "2.43.5"
