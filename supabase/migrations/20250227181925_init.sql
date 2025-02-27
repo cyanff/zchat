@@ -68,9 +68,6 @@ begin
         attempts := attempts + 1;
     end loop;
 
-    -- insert into profile_settings after successful profile creation
-    insert into public.profile_settings (id) values (new.id);
-    
     return new;
 end;
 $$ language plpgsql security definer set search_path = '';

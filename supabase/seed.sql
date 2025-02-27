@@ -16817,3 +16817,142 @@ VALUES
   ('scaly', 'adjective'),
   ('unpainted', 'adjective'),
   ('eroding', 'adjective');
+
+  INSERT INTO auth.users (
+    instance_id,
+    id,
+    aud,
+    role,
+    email,
+    encrypted_password,
+    email_confirmed_at,
+    recovery_sent_at,
+    last_sign_in_at,
+    raw_app_meta_data,
+    raw_user_meta_data,
+    created_at,
+    updated_at,
+    confirmation_token,
+    email_change,
+    email_change_token_new,
+    recovery_token
+) VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    '99999999-9999-9999-9999-999999999999',
+    'authenticated',
+    'authenticated',
+    'imcyanf@gmail.com',
+    crypt('Iy1Xdd6WtsHQShte4B', gen_salt('bf')),
+    current_timestamp,
+    current_timestamp,
+    current_timestamp,
+    '{"provider":"email","providers":["email"]}',
+    '{}',
+    current_timestamp,
+    current_timestamp,
+    '',
+    '',
+    '',
+    ''
+
+);
+
+
+
+CREATE OR REPLACE PROCEDURE seed_chat_data(
+    num_chats INT DEFAULT 5,
+    messages_per_chat INT DEFAULT 10,
+    candidates_per_message INT DEFAULT 3
+)
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    user_id UUID := '99999999-9999-9999-9999-999999999999';
+    chat_id VARCHAR(128);
+    message_id VARCHAR(128);
+    candidate_id VARCHAR(128);
+    selected_candidate_id VARCHAR(128);
+    i INT;
+    j INT;
+    k INT;
+    is_ai BOOLEAN;
+BEGIN
+    -- Ensure the user exists in profiles
+    INSERT INTO profiles (id, username)
+    VALUES (user_id, 'testuser' || floor(random() * 1000)::text)
+    ON CONFLICT (id) DO NOTHING;
+
+    -- Create chats
+    FOR i IN 1..num_chats LOOP
+            chat_id := 'chat_' || i || '_' || floor(random() * 1000000)::text;
+
+            -- Insert chat
+            INSERT INTO chats (id, is_public, created_by)
+            VALUES (chat_id, CASE WHEN random() > 0.7 THEN TRUE ELSE FALSE END, user_id);
+
+            -- Create messages for this chat
+            FOR j IN 1..messages_per_chat LOOP
+                    -- Alternate between user and AI messages
+                    is_ai := (j % 2 = 0);
+
+                    message_id := 'msg_' || i || '_' || j || '_' || floor(random() * 1000000)::text;
+
+                    -- Insert message
+                    INSERT INTO messages (id, chat_id, text, is_ai, created_by)
+                    VALUES (
+                               message_id,
+                               chat_id,
+                               CASE
+                                   WHEN is_ai THEN 'AI response ' || j || ' for chat ' || i
+                                   ELSE 'User message ' || j || ' for chat ' || i
+                                   END,
+                               is_ai,
+                               user_id
+                           );
+
+                    -- Only create candidate messages for AI responses
+                    IF is_ai THEN
+                        selected_candidate_id := NULL;
+
+                        -- Create candidate messages
+                        FOR k IN 1..candidates_per_message LOOP
+                                candidate_id := 'cand_' || i || '_' || j || '_' || k || '_' || floor(random() * 1000000)::text;
+
+                                -- Insert candidate message
+                                INSERT INTO candidate_messages (id, message_id, text, created_by)
+                                VALUES (
+                                           candidate_id,
+                                           message_id,
+                                           'Candidate ' || k || ' for message ' || j || ' in chat ' || i,
+                                           user_id
+                                       );
+
+                                -- Randomly select one candidate as the prime candidate
+                                IF k = 1 OR random() < 0.3 THEN
+                                    selected_candidate_id := candidate_id;
+                                END IF;
+                            END LOOP;
+
+                        -- Update the message with the prime candidate
+                        IF selected_candidate_id IS NOT NULL THEN
+                            UPDATE messages
+                            SET prime_candidate_id = selected_candidate_id
+                            WHERE id = message_id;
+                        END IF;
+                    END IF;
+                END LOOP;
+        END LOOP;
+
+    -- Output summary
+    RAISE NOTICE 'Seeded % chats with % messages each (% total messages)',
+        num_chats,
+        messages_per_chat,
+        num_chats * messages_per_chat;
+    RAISE NOTICE 'Created up to % candidate messages per AI message',
+        candidates_per_message;
+END;
+$$;
+
+
+
+call seed_chat_data(10, 10, 3);

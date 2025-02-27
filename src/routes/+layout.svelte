@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	let { data, children } = $props();
 	let { session, supabase } = $derived(data);
