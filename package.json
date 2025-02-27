@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "types": "supabase gen types typescript --local > src/lib/sb-types.ts",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "dev": "vite dev",
+    "dev:zero-cache": "zero-cache-dev -p src/schema.ts",
     "format": "prettier --write .",
     "lint": "eslint . && prettier --check .",
     "prepare": "svelte-kit sync || echo ''",
@@ -18,7 +20,7 @@
     "@eslint/js": "^9.18.0",
     "@sveltejs/adapter-auto": "^4.0.0",
     "@sveltejs/kit": "^2.16.0",
-    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/vite": "^4.0.0",
     "@types/express": "^5.0.0",
     "eslint": "^9.18.0",
@@ -36,10 +38,13 @@
   },
   "dependencies": {
     "@rocicorp/zero": "^0.16.2025022602",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
     "express": "^4.21.2",
+    "nanoid": "^5.1.2",
     "sst": "3.9.15",
     "supabase": "^2.15.8",
-    "svelte-kit-sst": "2.43.5"
+    "svelte-kit-sst": "2.43.5",
+    "zero-svelte": "^0.2.0"
   }
 }
