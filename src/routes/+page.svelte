@@ -7,7 +7,6 @@
 
 	function onclick() {
 		const id = nanoid();
-
 		z.current.mutate.colors.insert({
 			id,
 			name: 'color',
