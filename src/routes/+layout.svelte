@@ -18,4 +18,12 @@
 	});
 </script>
 
-{@render children()}
+<div class="font-sans [font-family:var(--font-sans)!important] text-foreground bg-background">
+	{@render children()}
+</div>
+
+<style>
+:global(html) {
+	font-family: var(--font-sans) !important;
+}
+</style>
