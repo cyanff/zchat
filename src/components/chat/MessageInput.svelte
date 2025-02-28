@@ -1,63 +1,134 @@
+<!-- <script lang="ts">
+	let message = $state('');
+
+</script>
+-->
+
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+	import { getZero } from '$lib/stores/zeroStore';
+	import { nanoid } from 'nanoid';
+	import { onMount } from 'svelte';
+	import autosize from 'svelte-autosize';
 
-  const dispatch = createEventDispatcher<{
-    sendMessage: string;
-  }>();
+	interface Props {
+		chatID: string;
+	}
+	const { chatID }: Props = $props();
 
-  let message = '';
-  let modelSelection = 'Gemini 2.0 Flash';
+	const z = getZero();
+	let input = $state('');
 
-  const handleSend = () => {
-    if (message.trim()) {
-      dispatch('sendMessage', message);
-      message = '';
-    }
-  };
+	function isTouchDevice() {
+		try {
+			document.createEvent('TouchEvent');
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
 
-  const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSend();
-    }
-  };
+	// TODO:
+	// desktop: enter key sends message, shift+enter goes to new line
+	// mobile: send button sends message, enter key goes to new line
+	//  // Handle key events (e.g., Enter to send)
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			handleSend();
+		}
+	}
+
+	const handleSend = () => {
+		const userID = z.current.userID;
+		const id = nanoid();
+		// console.log('hi');
+		z.current.mutate.messages.insert({
+			id,
+			chat_id: chatID,
+			text: input,
+			created_by: userID,
+			created_at: new Date().toISOString()
+		});
+
+		// wait for dom mutation
+		// probably make this an effect in <History/> later
+		setTimeout(() => {
+			// const el = document.getElementById(id);
+			// console.log('asdfaljs', el);
+			// if (el) {
+			// 	el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+			// }
+		}, 1000);
+	};
+
+	let textareaElement: HTMLTextAreaElement;
+	onMount(() => {
+		// Focus the textarea when the component mounts
+		textareaElement.focus();
+	});
 </script>
 
-<div class="flex items-end rounded-lg border border-gray-700 bg-gray-900 overflow-hidden">
-  <textarea 
-    class="flex-1 resize-none bg-transparent text-white p-3 min-h-[45px] max-h-[200px] focus:outline-none"
-    placeholder="Type your message here..."
-    bind:value={message}
-    on:keydown={handleKeydown}
-    rows="1"
-  ></textarea>
-  
-  <div class="flex items-center px-3 py-2 border-l border-gray-700">
-    <!-- Model selector dropdown -->
-    <div class="flex items-center mr-2 text-gray-400 text-sm">
-      <span>{modelSelection}</span>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 ml-1">
-        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-      </svg>
-    </div>
-    
-    <!-- Attachment button -->
-    <button aria-label="Attachment" class="text-gray-400 hover:text-white mr-2">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-        <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
-      </svg>
-    </button>
-    
-    <!-- Send button -->
-    <button 
-      aria-label="Send"
-      class="bg-purple-500 hover:bg-purple-600 text-white p-2 rounded-full"
-      on:click={handleSend}
-      disabled={!message.trim()}
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-        <path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z" />
-      </svg>
-    </button>
-  </div>
-</div> 
+<div class="fixed bottom-0 left-0 right-0 w-full px-4 pb-4 pt-2">
+	<div class="mx-auto max-w-4xl">
+		<div
+			class="relative rounded-2xl bg-[#333333] p-3 shadow-sm ring-1 ring-inset ring-white/5 backdrop-blur-sm"
+		>
+			<!-- Subtle inner glow/border sheen effect -->
+			<div
+				class="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.07] to-transparent pointer-events-none"
+			></div>
+
+			<div class="flex items-end">
+				<textarea
+					bind:value={input}
+					bind:this={textareaElement}
+					use:autosize
+					onkeydown={handleKeyDown}
+					placeholder="Type a message..."
+					id="message-input"
+					class="min-h-[56px] placeholder:overflow-none placeholder:select-none max-h-96 w-full resize-none bg-transparent py-1 px-2 text-white focus:outline-none scroll-hidden"
+					rows="1"
+				></textarea>
+
+				{#if input.trim()}
+					<button
+						onclick={handleSend}
+						class="ml-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#c26d4d] text-white transition-opacity hover:bg-[#d17a56] focus:outline-none"
+						aria-label="Send message"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="transform rotate-90"
+						>
+							<line x1="12" y1="5" x2="12" y2="19"></line>
+							<polyline points="19 12 12 19 5 12"></polyline>
+						</svg>
+					</button>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.scroll-hidden::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scroll-hidden {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	#message-input {
+		scrollbar-gutter: stable;
+	}
+</style>

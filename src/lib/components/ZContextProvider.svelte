@@ -88,7 +88,6 @@
 {#if $zeroReady}
 	{@render children()}
 {:else}
-	<!-- Optional loading indicator -->
 	<div class="loading">Initializing...</div>
 {/if}
 

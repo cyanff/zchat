@@ -1,23 +1,19 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { getZero } from '$lib/stores/zeroStore';
+	import { Query } from 'zero-svelte';
+
+	interface Props {
+		activeChatID?: string;
+	}
+	const { activeChatID }: Props = $props();
+
+	const z = getZero();
+	const chats = new Query(z.current.query.chats);
 
 	// State management
-	let isExpanded = false;
-	let isPinned = false;
-	let searchQuery = '';
-
-	// Mock data for recent chats
-	const recentChats = [
-		{ id: 1, title: 'Welcome to ZChat', timestamp: 'Just now' },
-		{ id: 2, title: 'Getting Started Guide', timestamp: '1h ago' },
-		{ id: 3, title: 'How to use prompts', timestamp: '2h ago' },
-		{ id: 4, title: 'Data privacy explained', timestamp: 'Yesterday' },
-		{ id: 5, title: 'New features walkthrough', timestamp: '2d ago' },
-		{ id: 6, title: 'Recommendation systems', timestamp: '3d ago' },
-		{ id: 7, title: 'Advanced techniques', timestamp: '1w ago' },
-		{ id: 8, title: 'Community guidelines', timestamp: '1w ago' },
-		{ id: 9, title: 'Tips and tricks', timestamp: '2w ago' }
-	];
+	let isExpanded = $state(false);
+	let isPinned = $state(false);
+	let searchQuery = $state('');
 
 	// Function to handle pinning/unpinning the sidebar
 	function togglePin() {
@@ -58,6 +54,7 @@
 	on:mouseenter={expandSidebar}
 ></div>
 
+<!-- TODO: use transform instead of of translate, smoother anims -->
 <div
 	id="sidebar"
 	role="navigation"
@@ -133,8 +130,11 @@
 			Recent Chats
 		</h3>
 		<div class="space-y-0.5 px-2">
-			{#each recentChats as chat (chat.id)}
-				<div class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-gray-100 cursor-pointer">
+			{#each chats.current as chat}
+				<a
+					href={`/chat/${chat.id}`}
+					class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-gray-100 cursor-pointer"
+				>
 					<div
 						class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500"
 					>
@@ -153,10 +153,10 @@
 						</svg>
 					</div>
 					<div class="flex-1 min-w-0">
-						<div class="font-medium text-sm text-gray-800 truncate">{chat.title}</div>
-						<div class="text-xs text-gray-500">{chat.timestamp}</div>
+						<div class="font-medium text-sm text-gray-800 truncate">{chat.id}</div>
+						<!-- <div class="text-xs text-gray-500">{chat.created_at}</div> -->
 					</div>
-				</div>
+				</a>
 			{/each}
 		</div>
 	</div>

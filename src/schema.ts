@@ -245,6 +245,17 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 				select: [canAccessMessage]
 			}
 		},
+		// messages: {
+		// 	row: {
+		// 		insert: ANYONE_CAN,
+		// 		update: {
+		// 			preMutation: ANYONE_CAN,
+		// 			postMutation: ANYONE_CAN
+		// 		},
+		// 		delete: ANYONE_CAN,
+		// 		select: ANYONE_CAN
+		// 	}
+		// },
 		candidate_messages: {
 			row: {
 				insert: [loggedInUserIsCreator, canAccessCandidateMessage],
