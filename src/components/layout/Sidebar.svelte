@@ -1,150 +1,163 @@
 <script lang="ts">
-	import { Zero } from '@rocicorp/zero';
-	import { writable } from 'svelte/store';
-	import { goto } from '$app/navigation';
-	import { schema, type Schema } from '../../schema';
-	import { Query, Z } from 'zero-svelte';
-	import { getZero } from '$lib/stores/zeroStore';
-	interface Props {
-		activeChatID?: string;
-		userID?: string;
-	}
-	const { activeChatID, userID }: Props = $props();
+	import { onMount } from 'svelte';
 
-	const z = getZero();
+	// State management
+	let isExpanded = false;
+	let isPinned = false;
+	let searchQuery = '';
 
-	const chats = new Query(z.current.query.chats.orderBy('created_at', 'desc').limit(50));
+	// Mock data for recent chats
+	const recentChats = [
+		{ id: 1, title: 'Welcome to ZChat', timestamp: 'Just now' },
+		{ id: 2, title: 'Getting Started Guide', timestamp: '1h ago' },
+		{ id: 3, title: 'How to use prompts', timestamp: '2h ago' },
+		{ id: 4, title: 'Data privacy explained', timestamp: 'Yesterday' },
+		{ id: 5, title: 'New features walkthrough', timestamp: '2d ago' },
+		{ id: 6, title: 'Recommendation systems', timestamp: '3d ago' },
+		{ id: 7, title: 'Advanced techniques', timestamp: '1w ago' },
+		{ id: 8, title: 'Community guidelines', timestamp: '1w ago' },
+		{ id: 9, title: 'Tips and tricks', timestamp: '2w ago' }
+	];
 
-	const isCollapsed = writable(false);
+	// Function to handle pinning/unpinning the sidebar
+	function togglePin() {
+		isPinned = !isPinned;
+		if (isPinned) {
+			isExpanded = true;
+		}
 
-	// const chats = new Query(z.current.query.chats);
-
-	// const chats = { current: [{ id: '1' }, { id: '2' }] };
-
-	// const chat = new Promise((resolve) => {
-	// 	setTimeout(() => {
-	// 		resolve({ current: [{ id: '1' }, { id: '2' }] });
-	// 	}, 1000);
-	// });
-
-	// These need to remain as 'let' because they are reassigned in the subscription
-
-	function handleChatClick(id: string) {
-		goto(`/chat/${id}`);
+		// Dispatch event to notify parent component of pin state change
+		const event = new CustomEvent('pinChange', { detail: { isPinned } });
+		document.dispatchEvent(event);
 	}
 
-	function toggleSidebar() {}
+	// Handle mouse enter/leave for expanding/collapsing
+	function expandSidebar() {
+		if (!isPinned) {
+			isExpanded = true;
+		}
+	}
+
+	function collapseSidebar() {
+		if (!isPinned) {
+			isExpanded = false;
+		}
+	}
+
+	// Handle search input
+	function handleSearch() {
+		// Future functionality for search
+		console.log('Searching for:', searchQuery);
+	}
 </script>
 
-<aside
-	class="flex flex-col h-full {$isCollapsed
-		? 'w-[60px]'
-		: 'w-[220px]'} bg-[#1a1a1a] border-r border-gray-800 transition-all duration-300"
+<!-- Hover trigger area -->
+<div
+	class="fixed top-0 left-0 h-screen w-[15px] z-[99]"
+	role="complementary"
+	on:mouseenter={expandSidebar}
+></div>
+
+<div
+	id="sidebar"
+	role="navigation"
+	class="fixed top-0 left-0 h-screen w-[280px] bg-white border-r border-gray-200 transition-all duration-300 ease-in-out overflow-hidden z-[100] flex flex-col {isExpanded
+		? 'translate-x-0 shadow-md'
+		: '-translate-x-full shadow-none'} {isPinned ? 'translate-x-0' : ''}"
+	on:mouseleave={collapseSidebar}
 >
-	<div class="p-4 flex items-center justify-between">
-		{#if !$isCollapsed}
-			<h1 class="text-white font-semibold text-lg">T3 Chat</h1>
-		{/if}
-		<div class="flex space-x-2 {$isCollapsed ? 'mx-auto' : ''}">
-			{#if !$isCollapsed}
-				<button aria-label="Search" class="text-gray-400 hover:text-white">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-						class="w-5 h-5"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</button>
-			{/if}
-			<button aria-label="New Chat" class="text-gray-400 hover:text-white">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-					class="w-5 h-5"
-				>
-					<path
-						d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z"
-					/>
-					<path
-						d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z"
-					/>
-				</svg>
-			</button>
+	<div class="flex justify-between items-center px-5 py-[18px] border-b border-gray-200 bg-white">
+		<div class="flex items-center gap-2.5 text-lg font-semibold">
+			<img src="/zero.png" alt="ZChat Logo" class="h-7 w-auto" />
+			<a
+				href="/"
+				class="text-gray-800 font-semibold text-lg tracking-tight hover:text-blue-600 transition-colors"
+				>ZChat</a
+			>
+		</div>
+
+		<button
+			aria-label="pin"
+			class="bg-transparent border-none cursor-pointer text-gray-600 p-1.5 rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500"
+			on:click={togglePin}
+			title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class={isPinned ? 'rotate-45 text-blue-500' : ''}
+			>
+				<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+			</svg>
+		</button>
+	</div>
+
+	<div class="p-5 border-b border-gray-200 bg-white">
+		<div
+			class="flex items-center bg-gray-100 rounded-lg px-3.5 py-2.5 transition-all duration-200 focus-within:bg-white focus-within:shadow-sm focus-within:shadow-gray-200"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="mr-2.5 text-gray-500"
+			>
+				<circle cx="11" cy="11" r="8" />
+				<line x1="21" y1="21" x2="16.65" y2="16.65" />
+			</svg>
+			<input
+				type="text"
+				bind:value={searchQuery}
+				on:input={handleSearch}
+				placeholder="Search chats"
+				class="border-none bg-transparent outline-none w-full text-sm text-gray-700 placeholder:text-gray-400"
+			/>
 		</div>
 	</div>
 
-	<div class="flex-1 overflow-y-auto">
-		<div class="px-2 space-y-1">
-			{#each chats.current as chat}
-				<button
-					class="w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 {activeChatID ===
-					chat.id
-						? 'bg-gray-800 text-white'
-						: 'text-gray-400 hover:bg-gray-800 hover:text-white'}"
-					on:click={() => handleChatClick(chat.id)}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-						class="w-5 h-5 flex-shrink-0"
+	<div class="flex-1 overflow-y-auto py-2 bg-white">
+		<h3 class="px-5 py-2 text-xs font-medium uppercase tracking-wider text-gray-500">
+			Recent Chats
+		</h3>
+		<div class="space-y-0.5 px-2">
+			{#each recentChats as chat (chat.id)}
+				<div class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-gray-100 cursor-pointer">
+					<div
+						class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500"
 					>
-						<path
-							d="M3.505 2.365A41.369 41.369 0 019 2c1.863 0 3.697.124 5.495.365 1.247.167 2.18 1.108 2.435 2.268a4.45 4.45 0 00-.577-.069 43.141 43.141 0 00-4.706 0C9.229 4.696 7.5 6.727 7.5 8.998v2.24c0 1.413.67 2.735 1.76 3.562l-2.98 2.98A.75.75 0 015 17.25v-3.443c-.501-.048-1-.106-1.495-.172C2.033 13.438 1 12.162 1 10.72V5.28c0-1.441 1.033-2.717 2.505-2.914z"
-						/>
-					</svg>
-					{#if !$isCollapsed}
-						<span class="truncate">{'Chat: ' + chat.id}</span>
-					{/if}
-				</button>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+						</svg>
+					</div>
+					<div class="flex-1 min-w-0">
+						<div class="font-medium text-sm text-gray-800 truncate">{chat.title}</div>
+						<div class="text-xs text-gray-500">{chat.timestamp}</div>
+					</div>
+				</div>
 			{/each}
 		</div>
 	</div>
-
-	<!-- Footer -->
-	<div class="p-4 border-t border-gray-800 flex justify-between items-center">
-		{#if !$isCollapsed}
-			<button class="text-gray-400 hover:text-white"> Login </button>
-		{/if}
-		<button
-			aria-label="Toggle Sidebar"
-			class="text-gray-400 hover:text-white {$isCollapsed ? 'mx-auto' : ''}"
-			on:click={toggleSidebar}
-		>
-			{#if $isCollapsed}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-					class="w-5 h-5"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			{:else}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-					class="w-5 h-5"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			{/if}
-		</button>
-	</div>
-</aside>
+</div>

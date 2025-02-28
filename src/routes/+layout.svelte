@@ -18,5 +18,13 @@
 </script>
 
 <ZContextProvider {sb}>
-	{@render children()}
+	<div class="font-sans [font-family:var(--font-sans)!important] text-foreground bg-background">
+		{@render children()}
+	</div>
 </ZContextProvider>
+
+<style>
+	:global(html) {
+		font-family: var(--font-sans) !important;
+	}
+</style>
