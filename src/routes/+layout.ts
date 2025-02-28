@@ -9,7 +9,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	 */
 	depends('supabase:auth');
 
-	const supabase = isBrowser()
+	const sb = isBrowser()
 		? createBrowserClient(config.supabaseURL, config.supabaseAnonKey, {
 				global: {
 					fetch
@@ -33,12 +33,12 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	 */
 	const {
 		data: { session }
-	} = await supabase.auth.getSession();
+	} = await sb.auth.getSession();
 
 	const {
 		data: { user }
-	} = await supabase.auth.getUser();
+	} = await sb.auth.getUser();
 
-	return { session, supabase, user };
+	return { session, sb, user };
 };
 export const ssr = false;

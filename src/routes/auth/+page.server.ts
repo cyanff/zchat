@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { SignJWT } from 'jose';
-import { config } from '$lib/config';
+import { ZERO_AUTH_SECRET } from '$env/static/private';
 
 // TODO: dedupe
 export const actions: Actions = {
@@ -31,11 +31,11 @@ export const actions: Actions = {
 		const jwt = await new SignJWT(payload)
 			.setProtectedHeader({ alg: 'HS256' })
 			.setExpirationTime('30days')
-			.sign(new TextEncoder().encode(config.zeroAuthSecret));
+			.sign(new TextEncoder().encode(ZERO_AUTH_SECRET));
 
 		cookies.set('jwt', jwt, {
 			path: '/',
-			httpOnly: true,
+			httpOnly: false,
 			secure: import.meta.env.PROD,
 			sameSite: 'lax'
 		});
@@ -62,11 +62,11 @@ export const actions: Actions = {
 			const jwt = await new SignJWT(payload)
 				.setProtectedHeader({ alg: 'HS256' })
 				.setExpirationTime('30days')
-				.sign(new TextEncoder().encode(config.zeroAuthSecret));
+				.sign(new TextEncoder().encode(ZERO_AUTH_SECRET));
 
 			cookies.set('jwt', jwt, {
 				path: '/',
-				httpOnly: true,
+				httpOnly: false,
 				secure: import.meta.env.PROD,
 				sameSite: 'lax'
 			});

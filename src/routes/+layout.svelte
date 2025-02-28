@@ -2,20 +2,21 @@
 	import '../app.css';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
+	import ZContextProvider from '$lib/components/ZContextProvider.svelte';
 
 	let { data, children } = $props();
-	let { session, supabase } = $derived(data);
+	let { session, sb } = $derived(data);
 
 	onMount(() => {
-		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
+		const { data } = sb.auth.onAuthStateChange((_, newSession) => {
 			if (newSession?.expires_at !== session?.expires_at) {
 				invalidate('supabase:auth');
 			}
 		});
-
 		return () => data.subscription.unsubscribe();
 	});
 </script>
 
-{@render children()}
+<ZContextProvider {sb}>
+	{@render children()}
+</ZContextProvider>

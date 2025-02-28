@@ -1,19 +1,31 @@
 <script lang="ts">
+	import { Zero } from '@rocicorp/zero';
 	import { writable } from 'svelte/store';
-	// import { z } from '$lib/z.svelte';
-	// import { Query } from 'zero-svelte';
 	import { goto } from '$app/navigation';
-
+	import { schema, type Schema } from '../../schema';
+	import { Query, Z } from 'zero-svelte';
+	import { getZero } from '$lib/stores/zeroStore';
 	interface Props {
 		activeChatID?: string;
+		userID?: string;
 	}
-	const { activeChatID }: Props = $props();
+	const { activeChatID, userID }: Props = $props();
+
+	const z = getZero();
+
+	const chats = new Query(z.current.query.chats.orderBy('created_at', 'desc').limit(50));
 
 	const isCollapsed = writable(false);
 
 	// const chats = new Query(z.current.query.chats);
 
-	const chats = { current: [{ id: '1' }, { id: '2' }] };
+	// const chats = { current: [{ id: '1' }, { id: '2' }] };
+
+	// const chat = new Promise((resolve) => {
+	// 	setTimeout(() => {
+	// 		resolve({ current: [{ id: '1' }, { id: '2' }] });
+	// 	}, 1000);
+	// });
 
 	// These need to remain as 'let' because they are reassigned in the subscription
 
