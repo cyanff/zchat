@@ -2,6 +2,8 @@
 	import { fade } from 'svelte/transition';
 	import SvelteMarkdown from '@humanspeak/svelte-markdown';
 	import ImageRenderer from './ImageRenderer.svelte';
+	import { Icon } from 'svelte-hero-icons';
+	import { ClipboardDocument, ArrowPath } from 'svelte-hero-icons';
 	/**
 	 * Message component displays individual chat messages with appropriate styling
 	 * based on whether they're from the user or assistant.
@@ -60,13 +62,13 @@
 		{/if}
 
 		{#if showFooter}
-			<div class="message-footer mt-2 flex justify-end gap-2 text-xs text-gray-200">
-				<button class="action-button hover:text-white transition-colors" on:click={copyContent}>
-					Copy
+			<div class="message-footer mt-4 flex justify-start gap-2">
+				<button class="footer-button rounded-full" title="Copy to clipboard" on:click={copyContent}>
+					<Icon src={ClipboardDocument} size="20" solid />
 				</button>
 				{#if role === 'assistant'}
-					<button class="action-button hover:text-white transition-colors" on:click={retry}>
-						Retry
+					<button class="footer-button rounded-full" title="Regenerate response" on:click={retry}>
+						<Icon src={ArrowPath} size="20" solid />
 					</button>
 				{/if}
 			</div>
@@ -81,17 +83,28 @@
 		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
-	/* Action button styling consistent with ChatFront */
-	.action-button {
-		font-weight: 500;
-		padding: 4px 8px;
-		border-radius: 4px;
+	/* Footer button styling to match the image design */
+	.footer-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: rgba(255, 255, 255, 0.6);
+		background-color: transparent;
+		border: none;
+		width: 32px;
+		height: 32px;
+		cursor: pointer;
+		transition: all 0.2s ease;
 	}
 
-	.action-button:hover {
+	.footer-button:hover {
 		background-color: rgba(255, 255, 255, 0.1);
+		color: rgba(255, 255, 255, 0.9);
+
+		border-radius: 50%;
 	}
 
+	/* Scoped styles for markdown content */
 	/* Scoped styles for markdown content */
 	.markdown-content :global(.prose) {
 		max-width: none;

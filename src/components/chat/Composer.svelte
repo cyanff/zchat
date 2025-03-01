@@ -36,15 +36,22 @@
 	}
 
 	/**
-	 * Handles keyboard shortcuts for submission
-	 * Submits on Ctrl+Enter or Cmd+Enter
+	 * Handles keyboard shortcuts for message submission and text formatting
+	 * Submits on Enter, uses Ctrl+Enter or Cmd+Enter for new line
+	 * This reverses the common pattern to prioritize quick sending over formatting
 	 *
 	 * @param {KeyboardEvent} event - The keyboard event
 	 */
 	function handleKeydown(event: KeyboardEvent): void {
-		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-			event.preventDefault();
-			handleSubmit();
+		if (event.key === 'Enter') {
+			if (event.ctrlKey || event.metaKey) {
+				// Allow new line insertion when modifier keys are pressed
+				return;
+			} else {
+				// Submit on plain Enter key
+				event.preventDefault();
+				handleSubmit();
+			}
 		}
 	}
 
@@ -95,7 +102,6 @@
 		width: 100%;
 		display: flex;
 		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-		flex-direction: row;
 		background-color: rgba(255, 255, 255, 0.05);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		padding: 16px;
@@ -138,5 +144,9 @@
 	.scroll-hidden {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
+	}
+
+	#message-input {
+		scrollbar-gutter: stable;
 	}
 </style>
