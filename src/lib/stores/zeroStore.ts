@@ -43,7 +43,14 @@ export async function initZero(userId: string) {
 		// logLevel: 'debug',
 		userID: userId,
 		server: import.meta.env.VITE_PUBLIC_SERVER,
-		auth: () => jwt,
+		// Clear cookie on auth error
+		auth: (error?: 'invalid-token') => {
+			if (error === 'invalid-token') {
+				Cookies.remove('jwt');
+				return undefined;
+			}
+			return jwt;
+		},
 		schema,
 		kvStore: 'idb'
 	});

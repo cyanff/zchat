@@ -5,10 +5,14 @@
 	interface Props {
 		activeChatID?: string;
 	}
+
+	// TODO: active chat should be highlighted
 	const { activeChatID }: Props = $props();
 
 	const z = getZero();
-	const chats = new Query(z.current.query.chats);
+	const chats = new Query(
+		z.current.query.chats.where('is_public', 'IS NOT', true).orderBy('created_at', 'desc')
+	);
 
 	// State management
 	let isExpanded = $state(false);

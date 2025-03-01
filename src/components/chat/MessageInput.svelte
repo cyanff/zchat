@@ -41,7 +41,7 @@
 	const handleSend = () => {
 		const userID = z.current.userID;
 		const id = nanoid();
-		z.current.mutate.messages.insert({
+		const t = z.current.mutate.messages.insert({
 			id,
 			chat_id: chatID,
 			text: input,

@@ -100,6 +100,7 @@ create table chats
         references profiles
             on delete cascade,
     created_at double precision DEFAULT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000) not null,
+    title      varchar(255) default 'New Chat' not null,
     updated_at double precision
 );
 

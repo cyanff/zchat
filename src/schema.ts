@@ -31,6 +31,7 @@ const chats = table('chats')
 	.columns({
 		id: string(),
 		is_public: boolean(),
+		// title: string(),
 		created_by: string(),
 		created_at: number(),
 		updated_at: number().optional()
@@ -46,23 +47,6 @@ const messages = table('messages')
 		created_by: string(),
 		created_at: number(),
 		updated_at: number().optional()
-	})
-	.primaryKey('id');
-
-const colors = table('colors')
-	.columns({
-		id: string(),
-		name: string().optional(),
-		hex: string(),
-		red: number().optional(),
-		green: number().optional(),
-		blue: number().optional(),
-		hue: number().optional(),
-		sat_hsl: number().optional(),
-		light_hsl: number().optional(),
-		sat_hsv: number().optional(),
-		val_hsv: number().optional(),
-		source: string().optional()
 	})
 	.primaryKey('id');
 
@@ -108,7 +92,7 @@ const messagesRelationships = relationships(messages, ({ one }) => ({
 
 /* Schema Definition */
 export const schema = createSchema(1, {
-	tables: [profiles, chats, messages, colors],
+	tables: [profiles, chats, messages],
 	relationships: [profilesRelationships, chatsRelationships, messagesRelationships]
 });
 
@@ -118,7 +102,6 @@ type TableName = keyof Schema['tables'];
 export type ProfileRow = Row<typeof schema.tables.profiles>;
 export type ChatRow = Row<typeof schema.tables.chats>;
 export type MessageRow = Row<typeof schema.tables.messages>;
-export type ColorRow = Row<typeof schema.tables.colors>;
 
 type PermissionRule<TTable extends TableName> = (
 	authData: AuthData,
@@ -189,17 +172,6 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 						eb.exists('chat', (q) => q.where((eb) => loggedInUserIsCreator(authData, eb)))
 				],
 				select: [canAccessMessage]
-			}
-		},
-		colors: {
-			row: {
-				insert: ANYONE_CAN,
-				update: {
-					preMutation: ANYONE_CAN,
-					postMutation: ANYONE_CAN
-				},
-				delete: ANYONE_CAN,
-				select: ANYONE_CAN
 			}
 		}
 	};
