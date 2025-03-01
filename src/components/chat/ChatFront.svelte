@@ -9,10 +9,12 @@
 		UserCircle
 	} from 'svelte-hero-icons';
 	import Composer from './Composer.svelte';
+	import SearchModal from './SearchModal.svelte';
 	import { tick } from 'svelte';
 
 	let inputValue = '';
 	let composerComponent: Composer;
+	let isSearchModalOpen = $state(false);
 
 	/**
 	 * Handles message submission from the Composer component
@@ -23,6 +25,20 @@
 	async function handleSubmit(message: string): Promise<void> {
 		console.log('Message submitted:', message);
 		inputValue = '';
+	}
+
+	/**
+	 * Toggles the search modal visibility
+	 */
+	function toggleSearchModal(): void {
+		isSearchModalOpen = !isSearchModalOpen;
+	}
+
+	/**
+	 * Closes the search modal
+	 */
+	function closeSearchModal(): void {
+		isSearchModalOpen = false;
 	}
 </script>
 
@@ -40,7 +56,7 @@
 		</a>
 
 		<div class="header-actions">
-			<button class="action-button size-10 p-8 rounded-full">
+			<button class="action-button size-10 p-8 rounded-full" on:click={toggleSearchModal} aria-label="Search">
 				<Icon src={MagnifyingGlass} size="24" class="m-auto" />
 			</button>
 
@@ -83,6 +99,9 @@
 		</div>
 	</main>
 </div>
+
+<!-- Search Modal -->
+<SearchModal isOpen={isSearchModalOpen} onClose={closeSearchModal} />
 
 <style>
 	.app-container {
