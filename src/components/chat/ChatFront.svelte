@@ -15,6 +15,12 @@
 	import { nanoid } from 'nanoid';
 	import { goto } from '$app/navigation';
 	import { getZero } from '$lib/stores/zeroStore';
+  import { createDropdownMenu, melt } from '@melt-ui/svelte'
+  
+  const {
+    elements: { menu, item, trigger, arrow }
+  } = createDropdownMenu()
+
 
 	const z = getZero();
 
