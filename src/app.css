@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
-/* @import '@fontsource/inter/index.css'; */
 
 @layer base {
   :root {
@@ -40,11 +39,6 @@
   }
 
 
-  /* Improved focus styles for better accessibility */
-  *:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-  }
 
   /* Better button styles */
   button {

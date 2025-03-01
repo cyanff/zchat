@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import ZContextProvider from '$lib/components/ZContextProvider.svelte';
 	import { Toaster, toast } from 'svelte-sonner';
+	import Sidebar from '$components/layout/Sidebar.svelte';
 
 	let { data, children } = $props();
 	let { session, sb } = $derived(data);
@@ -28,7 +29,10 @@
 <ZContextProvider {sb}>
 	<Toaster theme="dark" {toastOptions} position="top-center" />
 	<div class="font-sans [font-family:var(--font-sans)!important] text-foreground bg-background">
-		{@render children()}
+		<div class="flex w-full h-screen relative">
+			<Sidebar />
+			{@render children()}
+		</div>
 	</div>
 </ZContextProvider>
 

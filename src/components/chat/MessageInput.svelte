@@ -62,7 +62,7 @@
 </script>
 
 <div class="fixed bottom-0 left-0 right-0 w-full px-4 pb-4 pt-2">
-	<div class="mx-auto max-w-4xl">
+	<div class="mx-auto max-w-2xl">
 		<Composer
 			bind:value={input}
 			placeholder="Type a message..."

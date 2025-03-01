@@ -34,7 +34,7 @@
 		const chatID = nanoid();
 		const userID = z.current.userID;
 
-		const truncated = message.slice(0, 64);
+		const truncated = message.slice(0, 128);
 
 		await z.current.mutateBatch(async (tx) => {
 			tx.chats.insert({
@@ -66,62 +66,64 @@
 	}
 </script>
 
-<div class="app-container">
-	<header class="header">
-		<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
-			<img
-				src="/zero.png"
-				alt="ZChat Logo"
-				class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
-			/>
-			<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
-				>ZChat</span
-			>
-		</a>
+<div id="content" class={`flex-1 w-full transition-[margin-left] duration-300 ease-in-out`}>
+	<div class="app-container">
+		<header class="header">
+			<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
+				<img
+					src="/zero.png"
+					alt="ZChat Logo"
+					class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
+				/>
+				<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
+					>ZChat</span
+				>
+			</a>
 
-		<div class="header-actions">
-			<button class="action-button size-10 p-8 rounded-full">
-				<Icon src={MagnifyingGlass} size="24" class="m-auto" />
-			</button>
+			<div class="header-actions">
+				<button class="action-button size-10 p-8 rounded-full">
+					<Icon src={MagnifyingGlass} size="24" class="m-auto" />
+				</button>
 
-			<button class="action-button size-10 p-8 rounded-full">
-				<Icon src={UserCircle} size="30" solid class="m-auto" />
-			</button>
-		</div>
-	</header>
+				<button class="action-button size-10 p-8 rounded-full">
+					<Icon src={UserCircle} size="30" solid class="m-auto" />
+				</button>
+			</div>
+		</header>
 
-	<main class="main-content">
-		<h1 class="greeting">Good evening, cyan.</h1>
-		<p class="subheading">{`How can I help you today?`}</p>
+		<main class="main-content">
+			<h1 class="greeting">Good evening, cyan.</h1>
+			<p class="subheading">{`How can I help you today?`}</p>
 
-		<div class="input-container">
-			<Composer
-				bind:value={inputValue}
-				placeholder="What do you want to know?"
-				focusOnMount={true}
-				onSubmit={handleSubmit}
-			/>
-		</div>
+			<div class="input-container">
+				<Composer
+					bind:value={inputValue}
+					placeholder="What do you want to know?"
+					focusOnMount={true}
+					onSubmit={handleSubmit}
+				/>
+			</div>
 
-		<div class="features">
-			<button class="feature-button">
-				<Icon src={DocumentText} size="20" />
-				Research
-			</button>
-			<button class="feature-button">
-				<Icon src={Bolt} size="20" />
-				Brainstorm
-			</button>
-			<button class="feature-button">
-				<Icon src={ChartBar} size="20" />
-				Analyze Data
-			</button>
-			<button class="feature-button">
-				<Icon src={CodeBracket} size="20" />
-				Code
-			</button>
-		</div>
-	</main>
+			<div class="features">
+				<button class="feature-button">
+					<Icon src={DocumentText} size="20" />
+					Research
+				</button>
+				<button class="feature-button">
+					<Icon src={Bolt} size="20" />
+					Brainstorm
+				</button>
+				<button class="feature-button">
+					<Icon src={ChartBar} size="20" />
+					Analyze Data
+				</button>
+				<button class="feature-button">
+					<Icon src={CodeBracket} size="20" />
+					Code
+				</button>
+			</div>
+		</main>
+	</div>
 </div>
 
 <style>

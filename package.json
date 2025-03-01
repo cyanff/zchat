@@ -51,6 +51,7 @@
     "express": "^4.21.2",
     "js-cookie": "^3.0.5",
     "nanoid": "^5.1.2",
+    "openai": "^4.86.1",
     "pg": "^8.13.3",
     "sql-template-tag": "^5.2.1",
     "sst": "3.9.15",
