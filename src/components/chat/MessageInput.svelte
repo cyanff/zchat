@@ -9,6 +9,7 @@
 	import { nanoid } from 'nanoid';
 	import { onMount } from 'svelte';
 	import autosize from 'svelte-autosize';
+	import { createEventDispatcher } from 'svelte';
 
 	interface Props {
 		chatID: string;

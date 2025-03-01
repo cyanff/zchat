@@ -1,90 +1,202 @@
 <script lang="ts">
-  // Define interface for component props
-  interface $$Props {
-    sidebarPinned?: boolean;
-  }
+	import { Icon } from 'svelte-hero-icons';
+	import {
+		DocumentText,
+		Bolt,
+		ChartBar,
+		CodeBracket,
+		MagnifyingGlass,
+		UserCircle
+	} from 'svelte-hero-icons';
+	import Composer from './Composer.svelte';
+	import { tick } from 'svelte';
 
-  // Placeholder for any future functionality
-  let messageText = '';
-  let inputFocused = false;
-  
-  // Accept sidebarPinned prop
-  export let sidebarPinned = false;
+	let inputValue = '';
+	let composerComponent: Composer;
 
-  function handleSubmit() {
-    if (messageText.trim()) {
-      // Future implementation for message handling
-      messageText = '';
-    }
-  }
-
-  // Handle input focus
-  function handleFocus() {
-    inputFocused = true;
-  }
-
-  function handleBlur() {
-    inputFocused = false;
-  }
+	/**
+	 * Handles message submission from the Composer component
+	 * Logs the message, clears the input, and resets the textarea height
+	 *
+	 * @param {string} message - The submitted message
+	 */
+	async function handleSubmit(message: string): Promise<void> {
+		console.log('Message submitted:', message);
+		inputValue = '';
+	}
 </script>
 
-<div class="flex flex-col h-screen ">
-  <!-- Header -->
-  <header class="py-4 px-8 flex justify-between items-center bg-white shadow-sm">
-    <div>
-      {#if !sidebarPinned}
-        <div class="flex items-center gap-2.5 text-lg font-semibold">
-          <img src="/zero.png" alt="ZChat Logo" class="h-7 w-auto" />
-          <a href="/" class="text-gray-800 font-semibold text-lg tracking-tight hover:text-blue-600 transition-colors">ZChat</a>
-        </div>
-      {/if}
-    </div>
-    <div class="flex items-center gap-3">
-      <a href="/signin" class="text-sm font-medium py-2 px-4 rounded-lg border border-gray-200 bg-transparent text-gray-600 hover:text-blue-600 hover:border-blue-100 hover:bg-blue-50 transition-colors inline-flex items-center justify-center">
-        Sign in
-      </a>
-      <a href="/signup" class="text-sm font-medium py-2 px-4 rounded-lg bg-blue-500 border border-blue-500 text-white hover:bg-blue-600 hover:border-blue-600 shadow-sm hover:shadow transition-colors inline-flex items-center justify-center">
-        Sign up
-      </a>
-    </div>
-  </header>
+<div class="app-container">
+	<header class="header">
+		<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
+			<img
+				src="/zero.png"
+				alt="ZChat Logo"
+				class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
+			/>
+			<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
+				>ZChat</span
+			>
+		</a>
 
-  <!-- Main content -->
-  <main class="flex-1 flex flex-col items-center">
-    <div class="text-center mt-72 mb-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight mb-2">Welcome to <span class="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">ZChat</span>.</h1>
-      <p class="text-xl text-gray-600 max-w-lg mx-auto leading-relaxed">How can I help you today?</p>
-    </div>
-      
-    <!-- Message input (positioned higher) -->
-    <div class="w-full px-4 max-w-3xl mx-auto">
-      <form on:submit|preventDefault={handleSubmit} class="relative">
-        <div class="{inputFocused ? 'border-blue-500 shadow-blue-500/15 shadow-lg' : 'border-gray-200 shadow-sm'} flex items-center relative border rounded-xl bg-white h-[65px] w-full transition-all duration-300">
-          <input
-            type="text"
-            bind:value={messageText}
-            on:focus={handleFocus}
-            on:blur={handleBlur}
-            placeholder="What do you want to know?"
-            class="w-full px-6 text-lg outline-none border-none bg-transparent h-full"
-          />
-          <button
-            type="submit"
-            class="{messageText.trim().length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-90'} absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 bg-blue-50 p-2.5 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-blue-500 hover:text-white"
-            aria-label="Send message"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-              <path d="M22 2L11 13" />
-              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
-          </button>
-        </div>
-      </form>
-    </div>
-  </main>
+		<div class="header-actions">
+			<button class="action-button size-10 p-8 rounded-full">
+				<Icon src={MagnifyingGlass} size="24" class="m-auto" />
+			</button>
 
-  <!-- Footer -->
-  <footer class="text-center py-5 text-sm text-gray-500 bg-white mt-auto">
-    <p>Created by cyan & blahaj using the zero-sync engine</p>
-  </footer>
+			<button class="action-button size-10 p-8 rounded-full">
+				<Icon src={UserCircle} size="30" solid class="m-auto" />
+			</button>
+		</div>
+	</header>
+
+	<main class="main-content">
+		<h1 class="greeting">Good evening, cyan.</h1>
+		<p class="subheading">{`How can I help you today?`}</p>
+
+		<div class="input-container">
+			<Composer
+				bind:value={inputValue}
+				placeholder="What do you want to know?"
+				focusOnMount={true}
+				onSubmit={handleSubmit}
+			/>
+		</div>
+
+		<div class="features">
+			<button class="feature-button">
+				<Icon src={DocumentText} size="20" />
+				Research
+			</button>
+			<button class="feature-button">
+				<Icon src={Bolt} size="20" />
+				Brainstorm
+			</button>
+			<button class="feature-button">
+				<Icon src={ChartBar} size="20" />
+				Analyze Data
+			</button>
+			<button class="feature-button">
+				<Icon src={CodeBracket} size="20" />
+				Code
+			</button>
+		</div>
+	</main>
 </div>
+
+<style>
+	.app-container {
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		padding: 0;
+		box-sizing: border-box;
+		padding: 16px 24px;
+	}
+
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.user-avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background-color: #666;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: white;
+		font-weight: bold;
+	}
+
+	.main-content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 0 20px;
+		overflow-y: auto;
+	}
+
+	.greeting {
+		font-size: 2.2rem;
+		font-weight: 600;
+		margin-bottom: 8px;
+		text-align: center;
+	}
+
+	.subheading {
+		font-size: 1.1rem;
+		font-weight: 500;
+		color: rgba(255, 255, 255, 0.5);
+		margin-bottom: 40px;
+		text-align: center;
+	}
+
+	.input-container {
+		width: 100%;
+		max-width: 760px;
+		margin-bottom: 20px;
+	}
+
+	.action-button {
+		background: none;
+		border: none;
+		color: rgba(255, 255, 255, 0.7);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		padding: 6px;
+	}
+	.action-button:hover {
+		background-color: rgba(255, 255, 255, 0.1);
+	}
+
+	.features {
+		display: flex;
+		gap: 10px;
+		margin-top: 20px;
+		flex-wrap: wrap;
+		justify-content: center;
+		width: 100%;
+		font-size: 16px;
+		max-width: 760px;
+	}
+
+	.feature-button {
+		display: flex;
+		font-weight: 500;
+		align-items: center;
+		gap: 8px;
+		background-color: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		color: white;
+		padding: 8px 16px;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.feature-button:hover {
+		background-color: rgba(255, 255, 255, 0.1);
+	}
+
+	.scroll-hidden::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scroll-hidden {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+</style>
