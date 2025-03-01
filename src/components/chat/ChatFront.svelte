@@ -10,19 +10,59 @@
 	} from 'svelte-hero-icons';
 	import Composer from './Composer.svelte';
 	import { tick } from 'svelte';
+	import { Query } from 'zero-svelte';
+	import { nanoid } from 'nanoid';
+	import { goto } from '$app/navigation';
+	import { getZero } from '$lib/stores/zeroStore';
+
+	const z = getZero();
 
 	let inputValue = '';
 	let composerComponent: Composer;
 
 	/**
 	 * Handles message submission from the Composer component
-	 * Logs the message, clears the input, and resets the textarea height
+	 * Creates a new chat and its first message in a single atomic transaction
+	 * Navigates to the new chat page upon completion
 	 *
 	 * @param {string} message - The submitted message
 	 */
 	async function handleSubmit(message: string): Promise<void> {
 		console.log('Message submitted:', message);
 		inputValue = '';
+
+		const chatID = nanoid();
+		const userID = z.current.userID;
+
+		const truncated = message.slice(0, 64);
+
+		await z.current.mutateBatch(async (tx) => {
+			tx.chats.insert({
+				id: chatID,
+				is_public: false,
+				title: truncated,
+				created_at: Date.now(),
+				created_by: userID
+			});
+
+			tx.messages.insert({
+				id: nanoid(),
+				chat_id: chatID,
+				text: message,
+				created_at: Date.now(),
+				created_by: userID
+			});
+		});
+
+		fetch('/api/generate', {
+			method: 'POST',
+			body: JSON.stringify({
+				chat_id: chatID,
+				prompt: message
+			})
+		});
+
+		goto(`/chat/${chatID}`);
 	}
 </script>
 

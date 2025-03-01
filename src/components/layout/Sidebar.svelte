@@ -95,13 +95,14 @@
 		</a>
 
 		<div class="flex items-center gap-2">
-			<button
+			<a
+				href="/"
 				aria-label="new chat"
 				class="border-none cursor-pointer text-[rgba(255,255,255,0.7)] p-2 rounded-full transition-all duration-200 hover:bg-[rgba(255,255,255,0.1)]"
 				title="New chat"
 			>
 				<Icon src={PlusCircle} size="24" />
-			</button>
+			</a>
 			<button
 				aria-label="pin"
 				class="bg-transparent border-none cursor-pointer text-[rgba(255,255,255,0.7)] p-2 rounded-full transition-all duration-200 hover:bg-[rgba(255,255,255,0.1)]"
@@ -143,7 +144,7 @@
 				>
 					<Icon src={DocumentText} size="16" class="mr-2.5 text-[rgba(255,255,255,0.7)]" />
 					<div class="flex-1 min-w-0">
-						<div class="font-medium text-sm text-white truncate">{chat.id}</div>
+						<div class="font-medium text-sm text-white truncate">{chat.title}</div>
 						<!-- <div class="text-xs text-[rgba(255,255,255,0.5)]">{new Date(chat.created_at).toLocaleDateString()}</div> -->
 					</div>
 				</a>

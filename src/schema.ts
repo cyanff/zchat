@@ -31,7 +31,7 @@ const chats = table('chats')
 	.columns({
 		id: string(),
 		is_public: boolean(),
-		// title: string(),
+		title: string(),
 		created_by: string(),
 		created_at: number(),
 		updated_at: number().optional()
