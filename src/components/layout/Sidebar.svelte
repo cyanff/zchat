@@ -206,7 +206,7 @@
 				on:click={togglePin}
 				title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
 			>
-				<Icon src={ArrowsRightLeft} size="20" class={isPinned ? 'rotate-45 text-[#d17a56]' : ''} />
+				<Icon src={ArrowsRightLeft} size="20" class={isPinned ? 'rotate-45 text-[#f52388]' : ''} />
 			</button>
 		</div>
 	</div>

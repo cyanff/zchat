@@ -9,6 +9,7 @@
 		UserCircle
 	} from 'svelte-hero-icons';
 	import Composer from './Composer.svelte';
+	import SearchModal from './SearchModal.svelte';
 	import { tick } from 'svelte';
 	import { Query } from 'zero-svelte';
 	import { nanoid } from 'nanoid';
@@ -19,6 +20,7 @@
 
 	let inputValue = '';
 	let composerComponent: Composer;
+	let isSearchModalOpen = $state(false);
 
 	/**
 	 * Handles message submission from the Composer component
