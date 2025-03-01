@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import SvelteMarkdown from '@humanspeak/svelte-markdown';
-	import ImageRenderer from './ImageRenderer.svelte';
+	import SafeHtmlRenderer from './SafeHtmlRenderer.svelte';
 	import { Icon } from 'svelte-hero-icons';
-	import { ClipboardDocument, ArrowPath } from 'svelte-hero-icons';
+	import { ClipboardDocument } from 'svelte-hero-icons';
 	import { toast } from 'svelte-sonner';
+	import DOMPurify from 'dompurify';
 	/**
 	 * Message component displays individual chat messages with appropriate styling
 	 * based on whether they're from the user or assistant.
@@ -22,6 +23,7 @@
 	}
 
 	const { id, role, content, showFooter = false }: Props = $props();
+	const purified = $derived(DOMPurify.sanitize(content));
 
 	/**
 	 * Copies the message content to clipboard
@@ -33,11 +35,7 @@
 	}
 </script>
 
-<div
-	{id}
-	class="message-container {role === 'user' ? 'flex justify-end' : ''} my-4"
-	transition:fade={{ duration: 200 }}
->
+<div {id} class="message-container {role === 'user' ? 'flex justify-end' : ''} my-4">
 	<div
 		class="message-content {role === 'user'
 			? 'bg-user-message rounded-lg p-4 max-w-[80%]'
@@ -51,7 +49,7 @@
 
 		{#if role === 'assistant'}
 			<div class="content prose markdown-content">
-				<SvelteMarkdown source={content} />
+				<SvelteMarkdown source={purified} />
 			</div>
 		{/if}
 

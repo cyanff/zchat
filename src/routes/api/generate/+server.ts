@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { OPENROUTER_API_KEY, ZERO_UPSTREAM_DB, ZERO_AUTH_SECRET } from '$env/static/private';
+import { GROQ_API_KEY, ZERO_UPSTREAM_DB, ZERO_AUTH_SECRET } from '$env/static/private';
 import sql from 'sql-template-tag';
 import { nanoid } from 'nanoid';
 import { jwtVerify } from 'jose';
@@ -14,10 +14,10 @@ const { Pool } = nodePG;
 const poolConfig = { connectionString: ZERO_UPSTREAM_DB };
 const pool = new Pool(poolConfig);
 
-// Initialize OpenAI client with OpenRouter integration
+// Initialize OpenAI client with Groq integration
 const openai = new OpenAI({
-	apiKey: OPENROUTER_API_KEY,
-	baseURL: 'https://openrouter.ai/api/v1'
+	apiKey: GROQ_API_KEY,
+	baseURL: 'https://api.groq.com/openai/v1'
 });
 
 // Authentication helper function to reduce cognitive load
@@ -41,9 +41,9 @@ async function authenticateUser(jwt: string | undefined): Promise<string> {
 }
 
 /**
- * Streams AI responses using OpenAI's API with proper stream handling
+ * Streams AI responses using Groq's API with proper stream handling
  *
- * This function leverages the OpenAI client to stream responses in real-time,
+ * This function leverages the OpenAI-compatible client to stream responses in real-time,
  * accumulating text into paragraphs for natural text flow.
  *
  * @param contextMessages - Previously formatted conversation context
@@ -55,7 +55,7 @@ async function* streamAIResponse(
 	try {
 		// Create a streaming completion request
 		const stream = await openai.chat.completions.create({
-			model: 'meta-llama/llama-3.2-1b-instruct',
+			model: 'llama-3.1-8b-instant',
 			messages: contextMessages,
 			max_tokens: 512,
 			stream: true
