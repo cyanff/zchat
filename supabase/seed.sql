@@ -16858,4 +16858,5 @@ VALUES
 );
 
 
+
 call seed_chat_data(10, 10);
