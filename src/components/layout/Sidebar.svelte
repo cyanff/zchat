@@ -73,27 +73,40 @@
 			>
 		</div>
 
-		<button
-			aria-label="pin"
-			class="bg-transparent border-none cursor-pointer text-gray-600 p-1.5 rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500"
-			on:click={togglePin}
-			title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="16"
-				height="16"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class={isPinned ? 'rotate-45 text-blue-500' : ''}
+		<div class="flex items-center gap-2">
+			<button
+				aria-label="new chat"
+				class="border-none cursor-pointer text-gray-600 p-2 rounded-md transition-all duration-200 hover:bg-gray-200"
+				title="New chat"
 			>
-				<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-			</svg>
-		</button>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+				<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+				<path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+			  </svg>
+			  
+			</button>
+			<button
+				aria-label="pin"
+				class="bg-transparent border-none cursor-pointer text-gray-600 p-1.5 rounded-md transition-all duration-200 hover:bg-gray-100 hover:text-blue-500"
+				on:click={togglePin}
+				title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class={isPinned ? 'rotate-45 text-blue-500' : ''}
+				>
+					<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+				</svg>
+			</button>
+		</div>
 	</div>
 
 	<div class="p-5 border-b border-gray-200 bg-white">
@@ -133,25 +146,8 @@
 			{#each chats.current as chat}
 				<a
 					href={`/chat/${chat.id}`}
-					class="flex items-center gap-3 px-3 py-3 rounded-md hover:bg-gray-100 cursor-pointer"
+					class="flex items-center px-3 py-3 rounded-md hover:bg-gray-100 cursor-pointer"
 				>
-					<div
-						class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="18"
-							height="18"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						>
-							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-						</svg>
-					</div>
 					<div class="flex-1 min-w-0">
 						<div class="font-medium text-sm text-gray-800 truncate">{chat.id}</div>
 						<!-- <div class="text-xs text-gray-500">{chat.created_at}</div> -->

@@ -40,6 +40,7 @@
 	});
 </script>
 
+
 <div class="relative max-w-[800px] mx-auto p-4" bind:this={rootDiv}>
 	<div class="flex flex-col gap-4">
 		{#each ms.current as message, index (message.id)}
