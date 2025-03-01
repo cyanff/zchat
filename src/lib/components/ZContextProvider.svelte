@@ -5,6 +5,7 @@
 	import { zeroClient, zeroReady, initZero, getZero } from '$lib/stores/zeroStore';
 	import type { Schema } from '../../schema';
 	import type { Zero } from '@rocicorp/zero';
+	import { Z } from 'zero-svelte';
 
 	let {
 		sb,
@@ -54,6 +55,17 @@
 
 			const userId = session?.user?.id ?? 'anon';
 			console.log(`ZContextProvider: Reinitializing Zero with user ID: ${userId}`);
+
+			let zeroId: string | undefined;
+			try {
+				const z = getZero();
+				zeroId = z.current.userID;
+			} catch {}
+
+			if (zeroId === userId) {
+				console.log('Zero is already initialized with the correct user ID');
+				return;
+			}
 
 			try {
 				await initZero(userId);

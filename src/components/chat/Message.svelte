@@ -4,6 +4,7 @@
 	import ImageRenderer from './ImageRenderer.svelte';
 	import { Icon } from 'svelte-hero-icons';
 	import { ClipboardDocument, ArrowPath } from 'svelte-hero-icons';
+	import { toast } from 'svelte-sonner';
 	/**
 	 * Message component displays individual chat messages with appropriate styling
 	 * based on whether they're from the user or assistant.
@@ -28,14 +29,7 @@
 	 */
 	function copyContent() {
 		navigator.clipboard.writeText(content);
-	}
-
-	/**
-	 * Triggers regeneration of the assistant's response
-	 * Useful when users want alternative answers
-	 */
-	function retry() {
-		console.log('Retry message');
+		toast.success('Copied to clipboard!');
 	}
 </script>
 
@@ -61,16 +55,11 @@
 			</div>
 		{/if}
 
-		{#if showFooter}
-			<div class="message-footer mt-4 flex justify-start gap-2">
+		{#if showFooter && content.length > 0}
+			<div class="message-footer mt-4 flex justify-start -mx-2.5">
 				<button class="footer-button rounded-full" title="Copy to clipboard" on:click={copyContent}>
 					<Icon src={ClipboardDocument} size="20" solid />
 				</button>
-				{#if role === 'assistant'}
-					<button class="footer-button rounded-full" title="Regenerate response" on:click={retry}>
-						<Icon src={ArrowPath} size="20" solid />
-					</button>
-				{/if}
 			</div>
 		{/if}
 	</div>
@@ -164,6 +153,11 @@
 	.markdown-content :global(a:hover) {
 		color: #60a5fa;
 		text-decoration: underline;
+	}
+
+	.markdown-content :global(td) {
+		color: white;
+		font-style: normal;
 	}
 
 	/* List styling */

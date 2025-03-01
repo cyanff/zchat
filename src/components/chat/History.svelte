@@ -53,12 +53,7 @@
 </script>
 
 <div class="chat-history relative max-w-[760px] mx-auto px-4 py-6" bind:this={rootDiv}>
-	{#if ms.current.length === 0}
-		<div class="empty-state flex flex-col items-center justify-center py-12 text-center">
-			<p class="text-gray-400 text-lg mb-2">No messages yet</p>
-			<p class="text-gray-500 text-sm">Start a conversation to see messages here</p>
-		</div>
-	{:else}
+	{#if ms.current.length === 0}{:else}
 		<div class="messages-container flex flex-col gap-6">
 			{#each ms.current as message, index (message.id)}
 				<Message

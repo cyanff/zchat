@@ -4,13 +4,21 @@ import sql from 'sql-template-tag';
 import { nanoid } from 'nanoid';
 import { jwtVerify } from 'jose';
 import { getContext } from '$lib/context';
-import { get } from 'svelte/store';
 import nodePG from 'pg';
+import OpenAI from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources';
+
 const { Pool } = nodePG;
 
 // Separate configuration logic
 const poolConfig = { connectionString: ZERO_UPSTREAM_DB };
 const pool = new Pool(poolConfig);
+
+// Initialize OpenAI client with OpenRouter integration
+const openai = new OpenAI({
+	apiKey: OPENROUTER_API_KEY,
+	baseURL: 'https://openrouter.ai/api/v1'
+});
 
 // Authentication helper function to reduce cognitive load
 async function authenticateUser(jwt: string | undefined): Promise<string> {
@@ -32,37 +40,64 @@ async function authenticateUser(jwt: string | undefined): Promise<string> {
 	}
 }
 
-// AI generation helper function
-async function generateAIResponse(
-	prompt: string,
-	contextMessages: Array<{ role: string; content: string }>
-): Promise<string[]> {
+/**
+ * Streams AI responses using OpenAI's API with proper stream handling
+ *
+ * This function leverages the OpenAI client to stream responses in real-time,
+ * accumulating text into paragraphs for natural text flow.
+ *
+ * @param contextMessages - Previously formatted conversation context
+ * @returns AsyncGenerator that yields accumulated paragraphs as they complete
+ */
+async function* streamAIResponse(
+	contextMessages: ChatCompletionMessageParam[]
+): AsyncGenerator<string, void, unknown> {
 	try {
-		// Send the request with the properly formatted messages array
-		const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				model: 'meta-llama/llama-3.2-1b-instruct',
-				stream: false,
-				max_tokens: 512,
-				messages: contextMessages
-			})
+		// Create a streaming completion request
+		const stream = await openai.chat.completions.create({
+			model: 'meta-llama/llama-3.2-1b-instruct',
+			messages: contextMessages,
+			max_tokens: 512,
+			stream: true
 		});
 
-		if (!response.ok) {
-			const errorData = await response.json();
-			throw new Error(`AI API error: ${errorData.error || response.statusText}`);
+		let currentParagraph = '';
+
+		// Process the stream chunks
+		for await (const chunk of stream) {
+			// Extract the content from the chunk
+			const content = chunk.choices[0]?.delta?.content || '';
+
+			if (content) {
+				// Accumulate the content
+				currentParagraph += content;
+
+				// Check if we have a complete paragraph
+				// This detects double newlines which typically indicate paragraph breaks
+				if (content.includes('\n\n') || content.endsWith('\n\n')) {
+					// Split by double newlines and handle multiple paragraphs in one chunk
+					const paragraphs = currentParagraph.split('\n\n');
+
+					// Yield all complete paragraphs
+					for (let i = 0; i < paragraphs.length - 1; i++) {
+						if (paragraphs[i].trim()) {
+							yield paragraphs[i].trim();
+						}
+					}
+
+					// Keep the last part as the start of the next paragraph
+					currentParagraph = paragraphs[paragraphs.length - 1];
+				}
+			}
 		}
 
-		const data = await response.json();
-		return [data.choices[0].message.content];
+		// Yield any remaining content as the final paragraph
+		if (currentParagraph.trim()) {
+			yield currentParagraph.trim();
+		}
 	} catch (error) {
-		console.error('Error generating AI response:', error);
-		throw new Error('Failed to generate AI response');
+		console.error('Error streaming AI response:', error);
+		throw new Error('Failed to stream AI response');
 	}
 }
 
@@ -70,7 +105,7 @@ async function generateAIResponse(
 async function prepareContextMessages(
 	chatId: string,
 	prompt: string
-): Promise<Array<{ role: string; content: string }>> {
+): Promise<ChatCompletionMessageParam[]> {
 	try {
 		// Fetch context messages
 		const contextMessages = await getContext(pool, {
@@ -78,16 +113,16 @@ async function prepareContextMessages(
 			maxContextTokens: 2048
 		});
 
-		// Format messages into proper role/content format
+		// Format messages into proper role/content format with correct typing
 		// Convert to chronological order (oldest first)
 		const formattedMessages = contextMessages.map((msg) => ({
-			role: msg.is_ai ? 'assistant' : 'user',
+			role: msg.is_ai ? ('assistant' as const) : ('user' as const),
 			content: msg.text
 		}));
 
 		// Add the current user prompt
 		formattedMessages.push({
-			role: 'user',
+			role: 'user' as const,
 			content: prompt
 		});
 
@@ -98,7 +133,7 @@ async function prepareContextMessages(
 	} catch (error) {
 		console.error('Error preparing context messages:', error);
 		// Return just the current prompt on error
-		return [{ role: 'user', content: prompt }];
+		return [{ role: 'user' as const, content: prompt }];
 	}
 }
 
@@ -151,52 +186,58 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		// Prepare context messages in the proper format
 		const contextMessages = await prepareContextMessages(chat_id, prompt);
 
-		// AI generation - now returns an array of paragraphs
-		const paragraphs = await generateAIResponse(prompt, contextMessages);
+		// Create an initial empty message to start with
+		const messageId = await createMessage(chat_id, '', userId);
 
-		if (paragraphs.length === 0) {
-			throw new Error('No response generated');
-		}
+		// Accumulated full text for database updates
+		let fullText = '';
 
-		// Create initial message with the first paragraph
-		const messageId = await createMessage(chat_id, paragraphs[0], userId);
-
-		// Stream setup
+		// Stream setup for real-time response
 		const stream = new ReadableStream({
 			async start(controller) {
-				// Send the first paragraph and message ID
-				controller.enqueue(
-					JSON.stringify({
-						message_id: messageId,
-						text: paragraphs[0],
-						is_complete: paragraphs.length === 1
-					})
-				);
+				try {
+					// Stream AI response paragraphs
+					const aiStream = streamAIResponse(contextMessages);
 
-				// Process remaining paragraphs
-				let fullText = paragraphs[0];
+					// Process each paragraph as it completes
+					let isFirstParagraph = true;
+					for await (const paragraph of aiStream) {
+						// Update the accumulated full text
+						if (isFirstParagraph) {
+							fullText = paragraph;
+							isFirstParagraph = false;
+						} else {
+							fullText += '\n\n' + paragraph;
+						}
 
-				for (let i = 1; i < paragraphs.length; i++) {
-					// Add a small delay to simulate streaming
-					await new Promise((resolve) => setTimeout(resolve, 200));
+						// Update the message in the database
+						// This triggers the sync engine to stream updates to the client
+						await updateMessage(messageId, fullText);
 
-					// Append the new paragraph to the full text
-					fullText += '\n\n' + paragraphs[i];
+						// Send the update to the client through our stream
+						controller.enqueue(
+							JSON.stringify({
+								message_id: messageId,
+								text: paragraph,
+								is_complete: false // We don't know if it's complete until the stream ends
+							})
+						);
+					}
 
-					// Update the message in the database
-					await updateMessage(messageId, fullText);
-
-					// Send the update to the client
+					// Mark the final response as complete
 					controller.enqueue(
 						JSON.stringify({
 							message_id: messageId,
-							text: paragraphs[i],
-							is_complete: i === paragraphs.length - 1
+							text: '',
+							is_complete: true
 						})
 					);
-				}
 
-				controller.close();
+					controller.close();
+				} catch (error) {
+					console.error('Stream processing error:', error);
+					controller.error(error);
+				}
 			}
 		});
 

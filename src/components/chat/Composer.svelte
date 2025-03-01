@@ -102,7 +102,7 @@
 		width: 100%;
 		display: flex;
 		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-		background-color: rgba(255, 255, 255, 0.05);
+		background-color: rgba(38, 38, 41, 1);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		padding: 16px;
 		gap: 4px;
