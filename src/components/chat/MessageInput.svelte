@@ -41,24 +41,33 @@
 	const handleSend = () => {
 		const userID = z.current.userID;
 		const id = nanoid();
-		// console.log('hi');
 		z.current.mutate.messages.insert({
 			id,
 			chat_id: chatID,
 			text: input,
 			created_by: userID,
-			created_at: new Date().toISOString()
+			created_at: Date.now()
 		});
+
+		fetch('/api/generate', {
+			method: 'POST',
+			body: JSON.stringify({
+				chat_id: chatID,
+				prompt: input
+			})
+		});
+
+		input = '';
 
 		// wait for dom mutation
 		// probably make this an effect in <History/> later
 		setTimeout(() => {
-			// const el = document.getElementById(id);
-			// console.log('asdfaljs', el);
-			// if (el) {
-			// 	el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-			// }
-		}, 1000);
+			const el = document.getElementById(id);
+
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}, 200);
 	};
 
 	let textareaElement: HTMLTextAreaElement;
@@ -92,7 +101,7 @@
 
 				{#if input.trim()}
 					<button
-						onclick={handleSend}
+						type="submit"
 						class="ml-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#c26d4d] text-white transition-opacity hover:bg-[#d17a56] focus:outline-none"
 						aria-label="Send message"
 					>

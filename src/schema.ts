@@ -22,8 +22,8 @@ const profiles = table('profiles')
 	.columns({
 		id: string(),
 		username: string(),
-		created_at: string(),
-		updated_at: string().optional()
+		created_at: number(),
+		updated_at: number().optional()
 	})
 	.primaryKey('id');
 
@@ -32,8 +32,8 @@ const chats = table('chats')
 		id: string(),
 		is_public: boolean(),
 		created_by: string(),
-		created_at: string(),
-		updated_at: string().optional()
+		created_at: number(),
+		updated_at: number().optional()
 	})
 	.primaryKey('id');
 
@@ -44,20 +44,8 @@ const messages = table('messages')
 		text: string(),
 		is_ai: boolean().optional(),
 		created_by: string(),
-		created_at: string(),
-		updated_at: string().optional(),
-		prime_candidate_id: string().optional()
-	})
-	.primaryKey('id');
-
-const candidateMessages = table('candidate_messages')
-	.columns({
-		id: string(),
-		message_id: string(),
-		text: string(),
-		created_by: string(),
-		created_at: string(),
-		updated_at: string().optional()
+		created_at: number(),
+		updated_at: number().optional()
 	})
 	.primaryKey('id');
 
@@ -89,11 +77,6 @@ const profilesRelationships = relationships(profiles, ({ many }) => ({
 		sourceField: ['id'],
 		destField: ['created_by'],
 		destSchema: messages
-	}),
-	candidateMessages: many({
-		sourceField: ['id'],
-		destField: ['created_by'],
-		destSchema: candidateMessages
 	})
 }));
 
@@ -110,34 +93,11 @@ const chatsRelationships = relationships(chats, ({ many, one }) => ({
 	})
 }));
 
-const messagesRelationships = relationships(messages, ({ many, one }) => ({
-	candidateMessages: many({
-		sourceField: ['id'],
-		destField: ['message_id'],
-		destSchema: candidateMessages
-	}),
+const messagesRelationships = relationships(messages, ({ one }) => ({
 	chat: one({
 		sourceField: ['chat_id'],
 		destField: ['id'],
 		destSchema: chats
-	}),
-	creator: one({
-		sourceField: ['created_by'],
-		destField: ['id'],
-		destSchema: profiles
-	}),
-	primeCandidate: one({
-		sourceField: ['prime_candidate_id'],
-		destField: ['id'],
-		destSchema: candidateMessages
-	})
-}));
-
-const candidateMessagesRelationships = relationships(candidateMessages, ({ one }) => ({
-	message: one({
-		sourceField: ['message_id'],
-		destField: ['id'],
-		destSchema: messages
 	}),
 	creator: one({
 		sourceField: ['created_by'],
@@ -148,13 +108,8 @@ const candidateMessagesRelationships = relationships(candidateMessages, ({ one }
 
 /* Schema Definition */
 export const schema = createSchema(1, {
-	tables: [profiles, chats, messages, candidateMessages, colors],
-	relationships: [
-		profilesRelationships,
-		chatsRelationships,
-		messagesRelationships,
-		candidateMessagesRelationships
-	]
+	tables: [profiles, chats, messages, colors],
+	relationships: [profilesRelationships, chatsRelationships, messagesRelationships]
 });
 
 export type Schema = typeof schema;
@@ -163,7 +118,6 @@ type TableName = keyof Schema['tables'];
 export type ProfileRow = Row<typeof schema.tables.profiles>;
 export type ChatRow = Row<typeof schema.tables.chats>;
 export type MessageRow = Row<typeof schema.tables.messages>;
-export type CandidateMessageRow = Row<typeof schema.tables.candidate_messages>;
 export type ColorRow = Row<typeof schema.tables.colors>;
 
 type PermissionRule<TTable extends TableName> = (
@@ -182,7 +136,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 
 	const loggedInUserIsCreator = (
 		authData: AuthData,
-		eb: ExpressionBuilder<Schema, 'chats' | 'messages' | 'candidate_messages'>
+		eb: ExpressionBuilder<Schema, 'chats' | 'messages'>
 	) => eb.and(userIsLoggedIn(authData, eb), eb.cmp('created_by', '=', authData.sub));
 
 	const canAccessChat = (authData: AuthData, eb: ExpressionBuilder<Schema, 'chats'>) =>
@@ -190,14 +144,6 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 
 	const canAccessMessage = (authData: AuthData, eb: ExpressionBuilder<Schema, 'messages'>) =>
 		eb.exists('chat', (q) => q.where((eb) => canAccessChat(authData, eb)));
-
-	const canAccessCandidateMessage = (
-		authData: AuthData,
-		eb: ExpressionBuilder<Schema, 'candidate_messages'>
-	) =>
-		eb.exists('message', (q) =>
-			q.where((eb) => and(canAccessMessage, loggedInUserIsCreator)(authData, eb))
-		);
 
 	return {
 		profiles: {
@@ -243,28 +189,6 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 						eb.exists('chat', (q) => q.where((eb) => loggedInUserIsCreator(authData, eb)))
 				],
 				select: [canAccessMessage]
-			}
-		},
-		// messages: {
-		// 	row: {
-		// 		insert: ANYONE_CAN,
-		// 		update: {
-		// 			preMutation: ANYONE_CAN,
-		// 			postMutation: ANYONE_CAN
-		// 		},
-		// 		delete: ANYONE_CAN,
-		// 		select: ANYONE_CAN
-		// 	}
-		// },
-		candidate_messages: {
-			row: {
-				insert: [loggedInUserIsCreator, canAccessCandidateMessage],
-				update: {
-					preMutation: [loggedInUserIsCreator, canAccessCandidateMessage],
-					postMutation: [loggedInUserIsCreator]
-				},
-				delete: [loggedInUserIsCreator, canAccessCandidateMessage],
-				select: [canAccessCandidateMessage]
 			}
 		},
 		colors: {

@@ -40,7 +40,7 @@ export async function initZero(userId: string) {
 
 	// Create new Zero instance
 	const z = new Z<Schema>({
-		logLevel: 'debug',
+		// logLevel: 'debug',
 		userID: userId,
 		server: import.meta.env.VITE_PUBLIC_SERVER,
 		auth: () => jwt,

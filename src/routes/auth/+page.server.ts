@@ -70,7 +70,7 @@ export const actions: Actions = {
 				secure: import.meta.env.PROD,
 				sameSite: 'lax'
 			});
-			redirect(303, '/private');
+			redirect(303, '/');
 		}
 	}
 };

@@ -16858,11 +16858,9 @@ VALUES
 );
 
 
-
 CREATE OR REPLACE PROCEDURE seed_chat_data(
     num_chats INT DEFAULT 5,
-    messages_per_chat INT DEFAULT 10,
-    candidates_per_message INT DEFAULT 3
+    messages_per_chat INT DEFAULT 10
 )
     LANGUAGE plpgsql
 AS $$
@@ -16870,13 +16868,14 @@ DECLARE
     user_id UUID := '99999999-9999-9999-9999-999999999999';
     chat_id VARCHAR(128);
     message_id VARCHAR(128);
-    candidate_id VARCHAR(128);
-    selected_candidate_id VARCHAR(128);
     i INT;
     j INT;
-    k INT;
     is_ai BOOLEAN;
+    current_timestamp_epoch DOUBLE PRECISION;
 BEGIN
+    -- Get current timestamp as epoch
+    current_timestamp_epoch := (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000);
+    
     -- Ensure the user exists in profiles
     INSERT INTO profiles (id, username)
     VALUES (user_id, 'testuser' || floor(random() * 1000)::text)
@@ -16909,37 +16908,6 @@ BEGIN
                                is_ai,
                                user_id
                            );
-
-                    -- Only create candidate messages for AI responses
-                    IF is_ai THEN
-                        selected_candidate_id := NULL;
-
-                        -- Create candidate messages
-                        FOR k IN 1..candidates_per_message LOOP
-                                candidate_id := 'cand_' || i || '_' || j || '_' || k || '_' || floor(random() * 1000000)::text;
-
-                                -- Insert candidate message
-                                INSERT INTO candidate_messages (id, message_id, text, created_by)
-                                VALUES (
-                                           candidate_id,
-                                           message_id,
-                                           'Candidate ' || k || ' for message ' || j || ' in chat ' || i,
-                                           user_id
-                                       );
-
-                                -- Randomly select one candidate as the prime candidate
-                                IF k = 1 OR random() < 0.3 THEN
-                                    selected_candidate_id := candidate_id;
-                                END IF;
-                            END LOOP;
-
-                        -- Update the message with the prime candidate
-                        IF selected_candidate_id IS NOT NULL THEN
-                            UPDATE messages
-                            SET prime_candidate_id = selected_candidate_id
-                            WHERE id = message_id;
-                        END IF;
-                    END IF;
                 END LOOP;
         END LOOP;
 
@@ -16948,11 +16916,9 @@ BEGIN
         num_chats,
         messages_per_chat,
         num_chats * messages_per_chat;
-    RAISE NOTICE 'Created up to % candidate messages per AI message',
-        candidates_per_message;
 END;
 $$;
 
 
 
-call seed_chat_data(10, 10, 3);
+call seed_chat_data(10, 10);

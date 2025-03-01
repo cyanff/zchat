@@ -5,8 +5,8 @@ create table profiles
 (
     id                  uuid references auth.users on delete cascade not null primary key,
     username            varchar(25) unique check (char_length(username) > 0 and username ~ '^[a-zA-Z0-9_-]+$') not null,
-    created_at          timestamp with time zone default current_timestamp not null,
-    updated_at          timestamp with time zone
+    created_at          double precision DEFAULT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000) not null,
+    updated_at          double precision
 );
 create index idx_profiles_username on profiles (username);
 
@@ -79,7 +79,7 @@ create or replace trigger initialize_profile_trigger after insert on auth.users 
 create function update_updated_at() returns trigger as
 $$
 begin
-    new.updated_at = now();
+    new.updated_at = (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000);
     return new;
 end;
 $$ language plpgsql security definer set search_path = '';
@@ -99,8 +99,8 @@ create table chats
     created_by uuid                     default auth.uid()            not null
         references profiles
             on delete cascade,
-    created_at timestamp with time zone default current_timestamp     not null,
-    updated_at timestamp with time zone
+    created_at double precision DEFAULT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000) not null,
+    updated_at double precision
 );
 
 create index idx_chats_created_by
@@ -130,8 +130,8 @@ create table messages
     created_by         uuid                     default auth.uid()      not null
         references profiles
             on delete cascade,
-    created_at         timestamp with time zone default current_timestamp not null,
-    updated_at         timestamp with time zone
+    created_at         double precision DEFAULT (EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000) not null,
+    updated_at         double precision
 );
 
 create index idx_messages_chat_id
@@ -143,43 +143,5 @@ create index idx_messages_created_by
 create trigger messages_updated_at_trigger
     before update
     on messages
-    for each row
-execute procedure update_updated_at();
-
-
-
--- Authorization:
---   - SELECT: Users can read candidate messages tied to messages they own (messages.created_by = auth.uid()) in chats they own (chats.created_by = auth.uid()).
---   - INSERT: Users can create candidate messages for messages they own (messages.created_by = auth.uid()) in chats they own (chats.created_by = auth.uid()).
---   - UPDATE: Users can update their own candidate messages where they are the creator (pre-condition: created_by = auth.uid()) and remain the creator (post-condition: created_by = auth.uid()) tied to messages they own.
---   - DELETE: Users can delete their own candidate messages (created_by = auth.uid()) tied to messages they own.
-create table candidate_messages
-(
-    id         varchar(128) not null primary key,
-    message_id varchar(128)                                       not null
-        references messages
-            on delete cascade,
-    text       varchar(65536)                                      not null,
-    created_by uuid                     default auth.uid()        not null
-        references profiles
-            on delete cascade,
-    created_at timestamp with time zone default current_timestamp not null,
-    updated_at timestamp with time zone
-);
-
-alter table messages add column prime_candidate_id varchar(128) references candidate_messages (id);
-
-create index idx_messages_prime_candidate_id
-    on messages (prime_candidate_id);
-
-create index idx_candidate_messages_created_by
-    on candidate_messages (created_by);
-
-create index idx_candidate_messages_message_id
-    on candidate_messages (message_id);
-
-create trigger candidate_messages_updated_at_trigger
-    before update
-    on candidate_messages
     for each row
 execute procedure update_updated_at();
