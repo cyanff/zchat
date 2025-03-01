@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Sidebar from '$components/layout/Sidebar.svelte';
 	import MessageInput from '$components/chat/MessageInput.svelte';
 	import History from '$components/chat/History.svelte';
 	import { Icon } from 'svelte-hero-icons';
-	import { MagnifyingGlass, UserCircle, Link, PlusCircle } from 'svelte-hero-icons';
+	import { UserCircle, ArrowUpOnSquare, PlusCircle } from 'svelte-hero-icons';
 	import { getZero } from '$lib/stores/zeroStore';
 	import { toast } from 'svelte-sonner';
 
@@ -24,14 +23,14 @@
 </script>
 
 <div class="flex-1 flex flex-col">
-	<header class="flex justify-between items-center px-6 py-4">
+	<header class="header">
 		<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
 			<img
 				src="/zero.png"
 				alt="ZChat Logo"
 				class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
 			/>
-			<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors">
+			<span class="text-white font-bold display-font text-lg tracking-tight transition-colors">
 				ZChat
 			</span>
 		</a>
@@ -45,8 +44,9 @@
 			</a>
 			<button
 				class="bg-transparent border-none text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)] w-10 h-10 p-2 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+				on:click={handleLinkClick}
 			>
-				<Icon src={Link} size="22" onclick={handleLinkClick} />
+				<Icon src={ArrowUpOnSquare} size="22" />
 			</button>
 
 			<button
@@ -57,8 +57,23 @@
 		</div>
 	</header>
 
-	<div class="flex-1">
+	<div class="flex-1 mt-20">
 		<History {chatID} />
 	</div>
 	<MessageInput {chatID} />
 </div>
+
+<style>
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		width: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 10;
+	}
+</style>

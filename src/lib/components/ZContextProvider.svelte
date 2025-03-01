@@ -99,9 +99,7 @@
 
 {#if $zeroReady}
 	{@render children()}
-{:else}
-	<div class="loading">Initializing...</div>
-{/if}
+{:else}{/if}
 
 <style>
 	.loading {

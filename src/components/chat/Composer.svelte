@@ -76,7 +76,7 @@
 	<button
 		type="button"
 		on:click={handleSubmit}
-		class="submit-button ml-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-white transition-opacity hover:bg-[#d17a56] focus:outline-none"
+		class="submit-button ml-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-white transition-opacity focus:outline-none"
 		aria-label={submitLabel}
 	>
 		<svg
@@ -130,6 +130,7 @@
 		display: flex;
 		align-items: center;
 		padding: 6px;
+		transition: all 0.2s ease;
 	}
 
 	.submit-button:hover {

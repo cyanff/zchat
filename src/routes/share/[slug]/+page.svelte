@@ -3,7 +3,7 @@
 	import Sidebar from '$components/layout/Sidebar.svelte';
 	import History from '$components/chat/History.svelte';
 	import { Icon } from 'svelte-hero-icons';
-	import { Link, UserCircle } from 'svelte-hero-icons';
+	import { ArrowUpOnSquare, UserCircle } from 'svelte-hero-icons';
 	import { getZero } from '$lib/stores/zeroStore';
 	import { toast } from 'svelte-sonner';
 	import { Query } from 'zero-svelte';
@@ -35,14 +35,14 @@
 </script>
 
 <div class="flex-1 flex flex-col">
-	<header class="flex justify-between items-center px-6 py-4">
+	<header class="header">
 		<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
 			<img
 				src="/zero.png"
 				alt="ZChat Logo"
 				class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
 			/>
-			<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors">
+			<span class="text-white font-bold display-font text-lg tracking-tight transition-colors">
 				ZChat
 			</span>
 		</a>
@@ -54,7 +54,7 @@
 				on:click={handleCopyLink}
 				title="Copy share link"
 			>
-				<Icon src={Link} size="22" />
+				<Icon src={ArrowUpOnSquare} size="22" />
 			</button>
 
 			<button
@@ -66,7 +66,7 @@
 	</header>
 
 	{#if chatExists && isPublic}
-		<div class="flex-1">
+		<div class="flex-1 mt-20">
 			<History {chatID} />
 		</div>
 		<div
@@ -93,3 +93,18 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		width: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 10;
+	}
+</style>

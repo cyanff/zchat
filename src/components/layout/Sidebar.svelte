@@ -186,7 +186,7 @@
 				alt="ZChat Logo"
 				class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
 			/>
-			<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
+			<span class="text-white display-font font-bold text-lg tracking-tight transition-colors"
 				>ZChat</span
 			>
 		</a>

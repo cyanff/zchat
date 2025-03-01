@@ -28,11 +28,9 @@
 
 <ZContextProvider {sb}>
 	<Toaster theme="dark" {toastOptions} position="top-center" />
-	<div class="font-sans [font-family:var(--font-sans)!important] text-foreground bg-background">
-		<div class="flex w-full h-screen relative">
-			<Sidebar />
-			{@render children()}
-		</div>
+	<div class="flex w-full h-screen relative">
+		<Sidebar />
+		{@render children()}
 	</div>
 </ZContextProvider>
 

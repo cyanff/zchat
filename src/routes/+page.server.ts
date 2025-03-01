@@ -9,5 +9,24 @@ export const load: PageServerLoad = async ({ locals: { sb } }) => {
 	const user = sessionData?.session?.user;
 	const id = user?.id ?? 'anon';
 
-	return { user: id };
+	// Fetch the username from the profiles table if user is authenticated
+	let username = null;
+	if (id !== 'anon') {
+		const { data: profileData, error: profileError } = await sb
+			.from('profiles')
+			.select('username')
+			.eq('id', id)
+			.single();
+
+		if (profileError) {
+			console.error('Error fetching profile:', profileError);
+		} else if (profileData) {
+			username = profileData.username;
+		}
+	}
+
+	return {
+		user: id,
+		username: username || 'anon'
+	};
 };

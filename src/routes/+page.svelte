@@ -14,11 +14,33 @@
 	import { nanoid } from 'nanoid';
 	import { goto } from '$app/navigation';
 	import { getZero } from '$lib/stores/zeroStore';
+	import { page } from '$app/stores';
 
 	const z = getZero();
 
 	let inputValue = '';
 	let composerComponent: Composer;
+
+	// Get the username from server data instead of client-side query
+	const username = $page.data.username;
+
+	/**
+	 * Determines the appropriate greeting based on the current time of day
+	 * Creates a more personalized user experience
+	 *
+	 * @returns {string} Time-appropriate greeting (Good morning/afternoon/evening)
+	 */
+	function getTimeBasedGreeting(): string {
+		const hour = new Date().getHours();
+
+		if (hour < 12) {
+			return 'Good morning';
+		} else if (hour < 18) {
+			return 'Good afternoon';
+		} else {
+			return 'Good evening';
+		}
+	}
 
 	/**
 	 * Handles message submission from the Composer component
@@ -141,7 +163,7 @@
 					alt="ZChat Logo"
 					class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
 				/>
-				<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
+				<span class="text-white font-bold text-lg tracking-tight transition-colors display-font"
 					>ZChat</span
 				>
 			</a>
@@ -154,7 +176,9 @@
 		</header>
 
 		<main class="main-content">
-			<h1 class="greeting">Good evening, cyan.</h1>
+			<h1 class="greeting display-font">
+				{getTimeBasedGreeting()}, {username ? username.substring(0, 7) : 'anon'}.
+			</h1>
 			<p class="subheading">{`How can I help you today?`}</p>
 
 			<div class="input-container">
@@ -233,7 +257,7 @@
 	}
 
 	.greeting {
-		font-size: 2.2rem;
+		font-size: 2.5rem;
 		font-weight: 600;
 		margin-bottom: 8px;
 		text-align: center;
