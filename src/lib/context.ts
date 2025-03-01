@@ -8,15 +8,15 @@ interface GetContextPageOptions {
 	fromMessageID?: string;
 }
 
-const PAGE_SIZE = 10; // Adjust as needed
+const pageSize = 10; // Adjust as needed
 
-async function getContextPage(
+export async function getContextPage(
 	pool: Pool,
 	options: GetContextPageOptions
 ): Promise<Readonly<MessageRow>[]> {
 	const { chatID, page = 0, fromMessageID } = options;
-	const offset = page * PAGE_SIZE;
-	const limit = PAGE_SIZE;
+	const offset = page * pageSize;
+	const limit = pageSize;
 
 	try {
 		// Build the base query
