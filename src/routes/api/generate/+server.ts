@@ -4,7 +4,7 @@ import nodePG from 'pg';
 import sql from 'sql-template-tag';
 import { nanoid } from 'nanoid';
 import { jwtVerify } from 'jose';
-import { mockGenerateAIResponse } from './util';
+import { getContextPage } from '$lib/context';
 
 const { Pool } = nodePG;
 
@@ -36,7 +36,7 @@ async function authenticateUser(jwt: string | undefined): Promise<string> {
 }
 
 // AI generation helper function
-async function generateAIResponse(prompt: string): Promise<string[]> {
+async function generateAIResponse(prompt: string, context: string): Promise<string[]> {
 	try {
 		// Original implementation below, commented out
 		const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -48,7 +48,12 @@ async function generateAIResponse(prompt: string): Promise<string[]> {
 			body: JSON.stringify({
 				model: 'meta-llama/llama-3.2-1b-instruct',
 				stream: false,
-				messages: [{ role: 'user', content: prompt }]
+				max_tokens: 1024, // Limit output tokens to 1024 as requested
+				messages: [
+					// Include context as a system message if available
+					...(context ? [{ role: 'system', content: context }] : []),
+					{ role: 'user', content: prompt }
+				]
 			})
 		});
 
@@ -62,6 +67,35 @@ async function generateAIResponse(prompt: string): Promise<string[]> {
 	} catch (error) {
 		console.error('Error generating AI response:', error);
 		throw new Error('Failed to generate AI response');
+	}
+}
+
+// Function to prepare context from previous messages
+async function prepareContext(chatId: string): Promise<string> {
+	try {
+		// Fetch context messages
+		const contextMessages = await getContextPage(pool, {
+			chatID: chatId
+			// No page or fromMessageID specified to get the most recent messages
+		});
+
+		// Format messages into a context string
+		// Reverse to get chronological order (oldest first)
+		const formattedContext = contextMessages
+			.reverse()
+			.map((msg) => `${msg.is_ai ? 'Assistant' : 'User'}: ${msg.text}`)
+			.join('\n\n');
+
+		// If we have context, add a preamble
+		if (formattedContext) {
+			return `Previous conversation history:\n\n${formattedContext}\n\nPlease continue the conversation based on this context.`;
+		}
+
+		return '';
+	} catch (error) {
+		console.error('Error preparing context:', error);
+		// Return empty context on error, allowing the conversation to continue
+		return '';
 	}
 }
 
@@ -111,8 +145,11 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			);
 		}
 
+		// Fetch and prepare context from previous messages
+		const context = await prepareContext(chat_id);
+
 		// AI generation - now returns an array of paragraphs
-		const paragraphs = await generateAIResponse(prompt);
+		const paragraphs = await generateAIResponse(prompt, context);
 
 		if (paragraphs.length === 0) {
 			throw new Error('No response generated');
