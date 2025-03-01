@@ -14,11 +14,26 @@
 	import { nanoid } from 'nanoid';
 	import { goto } from '$app/navigation';
 	import { getZero } from '$lib/stores/zeroStore';
+	import { createDropdownMenu, melt } from '@melt-ui/svelte';
+	import { fly } from 'svelte/transition';
 
 	const z = getZero();
 
 	let inputValue = '';
 	let composerComponent: Composer;
+
+	// Create the dropdown menu for the profile button
+	const {
+		elements: { trigger, menu, item, arrow },
+		states: { open }
+	} = createDropdownMenu({
+		forceVisible: true,
+		loop: true,
+		positioning: {
+			placement: 'bottom-end',
+			gutter: 5
+		}
+	});
 
 	/**
 	 * Handles message submission from the Composer component
@@ -147,9 +162,21 @@
 			</a>
 
 			<div class="header-actions">
-				<button class="action-button size-10 p-8 rounded-full">
+				<button class="action-button size-10 p-8 rounded-full" use:melt={$trigger}>
 					<Icon src={UserCircle} size="30" solid class="m-auto" />
 				</button>
+				
+				{#if $open}
+					<div 
+						class="dropdown-menu" 
+						use:melt={$menu}
+						transition:fly={{ duration: 100, opacity: 0 }}
+					>
+						<div class="dropdown-item" use:melt={$item}>Login</div>
+						<div class="dropdown-item" use:melt={$item}>Sign Out</div>
+						<div use:melt={$arrow} class="dropdown-arrow" />
+					</div>
+				{/if}
 			</div>
 		</header>
 
@@ -208,6 +235,7 @@
 		display: flex;
 		align-items: center;
 		gap: 16px;
+		position: relative;
 	}
 
 	.user-avatar {
@@ -299,5 +327,38 @@
 
 	.feature-button:active {
 		transform: translateY(0);
+	}
+	
+	/* Dropdown menu styles */
+	.dropdown-menu {
+		position: absolute;
+		z-index: 40;
+		min-width: 180px;
+		display: flex;
+		flex-direction: column;
+		background-color: rgba(255, 255, 255, 0.05);
+		border-radius: 8px;
+		padding: 8px 0;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		transform-origin: top right;
+	}
+	
+	.dropdown-arrow {
+		fill: white;
+	}
+	
+	.dropdown-item {
+		display: flex;
+		align-items: center;
+		padding: 10px 16px;
+		color: white;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+	}
+	
+	.dropdown-item:hover,
+	.dropdown-item[data-highlighted] {
+		background-color: rgba(0, 0, 0, 0.05);
 	}
 </style>
