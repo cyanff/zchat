@@ -38,7 +38,7 @@
 <div {id} class="message-container {role === 'user' ? 'flex justify-end' : ''} my-4">
 	<div
 		class="message-content {role === 'user'
-			? 'bg-user-message rounded-lg p-4 max-w-[80%]'
+			? 'bg-user-message rounded-lg p-4 max-w-[80%] [overflow-wrap:anywhere]'
 			: 'max-w-[90%]'}"
 	>
 		{#if role === 'user'}
@@ -48,7 +48,7 @@
 		{/if}
 
 		{#if role === 'assistant'}
-			<div class="content prose markdown-content">
+			<div class="content prose markdown-content ]">
 				<SvelteMarkdown source={purified} />
 			</div>
 		{/if}
@@ -111,7 +111,7 @@
 	}
 
 	.markdown-content :global(img) {
-		width: 100%;
+		width: 400px;
 		height: auto;
 		border-radius: 10px;
 	}

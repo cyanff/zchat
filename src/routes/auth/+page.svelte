@@ -31,7 +31,7 @@
 					alt="ZChat Logo"
 					class="h-8 w-auto invert group-hover:rotate-180 transition duration-300 ease-in-out cursor-pointer"
 				/>
-				<span class="text-white font-semibold mt-2 text-lg tracking-tight transition-colors"
+				<span class="text-white font-bold display-font text-lg tracking-tight transition-colors"
 					>ZChat</span
 				>
 			</a>
@@ -96,7 +96,6 @@
 		display: flex;
 		flex-direction: column;
 		height: 100vh;
-		padding: 16px 24px;
 		box-sizing: border-box;
 		background-color: #000;
 		color: white;
@@ -106,7 +105,13 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 40px;
+		padding: 16px 24px;
+		width: 100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 10;
 	}
 
 	.main-content {

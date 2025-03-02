@@ -10,21 +10,23 @@
 	} from 'svelte-hero-icons';
 	import Composer from '$components/chat/Composer.svelte';
 	import { tick } from 'svelte';
-	import { Query } from 'zero-svelte';
 	import { nanoid } from 'nanoid';
 	import { goto } from '$app/navigation';
 	import { getZero } from '$lib/stores/zeroStore';
-	import { page } from '$app/stores';
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 	import { fly } from 'svelte/transition';
+	import Cookies from 'js-cookie';
 
 	const z = getZero();
 
-	let inputValue = '';
-	let composerComponent: Composer;
+	const { data } = $props();
+
+	let inputValue = $state('');
 
 	// Get the username from server data instead of client-side query
-	const username = $page.data.username;
+	const username = data.username;
+
+	const isSignedIn = $derived(z.current.userID !== 'anon');
 
 	/**
 	 * Determines the appropriate greeting based on the current time of day
@@ -58,6 +60,25 @@
 	});
 
 	/**
+	 * Handles user login by redirecting to the auth page
+	 * Provides entry point to authentication flow
+	 */
+	function handleLogin(): void {
+		goto('/auth');
+	}
+
+	/**
+	 * Handles user signout by clearing the JWT cookie
+	 * Removes authentication state and resets to anonymous user
+	 * Refreshes the page to apply changes immediately
+	 */
+	function handleSignout(): void {
+		Cookies.remove('jwt', { path: '/' });
+		Cookies.remove('sb-127-auth-token', { path: '/' });
+		window.location.reload();
+	}
+
+	/**
 	 * Handles message submission from the Composer component
 	 * Creates a new chat and its first message in a single atomic transaction
 	 * Navigates to the new chat page upon completion
@@ -65,7 +86,7 @@
 	 * @param {string} message - The submitted message
 	 */
 	async function handleSubmit(message: string): Promise<void> {
-		console.log('Message submitted:', message);
+		console.log('Message submitted ::', message);
 		inputValue = '';
 
 		const chatID = nanoid();
@@ -73,7 +94,7 @@
 
 		const truncated = message.slice(0, 128);
 
-		await z.current.mutateBatch(async (tx) => {
+		z.current.mutateBatch(async (tx) => {
 			tx.chats.insert({
 				id: chatID,
 				is_public: false,
@@ -90,16 +111,17 @@
 				created_by: userID
 			});
 		});
-
-		fetch('/api/generate', {
-			method: 'POST',
-			body: JSON.stringify({
-				chat_id: chatID,
-				prompt: message
-			})
-		});
-
 		goto(`/chat/${chatID}`);
+
+		setTimeout(() => {
+			fetch('/api/generate', {
+				method: 'POST',
+				body: JSON.stringify({
+					chat_id: chatID,
+					prompt: message
+				})
+			});
+		}, 300);
 	}
 
 	/**
@@ -194,8 +216,11 @@
 						use:melt={$menu}
 						transition:fly={{ duration: 100, opacity: 0 }}
 					>
-						<div class="dropdown-item" use:melt={$item}>Login</div>
-						<div class="dropdown-item" use:melt={$item}>Sign Out</div>
+						{#if !isSignedIn}
+							<div class="dropdown-item" use:melt={$item} on:click={handleLogin}>Login</div>
+						{:else}
+							<div class="dropdown-item" use:melt={$item} on:click={handleSignout}>Sign Out</div>
+						{/if}
 						<div use:melt={$arrow} class="dropdown-arrow" />
 					</div>
 				{/if}

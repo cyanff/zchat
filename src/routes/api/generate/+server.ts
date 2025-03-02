@@ -123,7 +123,7 @@ async function prepareContextMessages(
 		// Add the current user prompt
 		formattedMessages.push({
 			role: 'user' as const,
-			content: prompt
+			content: prompt.slice(0, 1024)
 		});
 
 		// Log for debugging
