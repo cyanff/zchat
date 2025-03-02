@@ -2,9 +2,6 @@ import { createServerClient } from '@supabase/ssr';
 import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { config } from '$lib/config';
-import { SignJWT } from 'jose';
-import { ZERO_AUTH_SECRET } from '$env/static/private';
-
 const supabase: Handle = async ({ event, resolve }) => {
 	/**
 	 * Creates a Supabase client specific to this server request.
@@ -67,35 +64,6 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	const { session, user } = await event.locals.safeGetSession();
 	event.locals.session = session;
 	event.locals.user = user;
-
-	if (!session) {
-		const cookies = event.cookies;
-		const sb = event.locals.sb;
-		const { data, error } = await sb.auth.signInAnonymously();
-		if (error) {
-			console.error(error);
-			redirect(303, '/auth/error');
-		}
-		const user = data.user;
-		if (!user) throw new Error('This should never happen, user is null');
-
-		const payload = {
-			sub: user.id,
-			iat: Math.floor(Date.now() / 1000)
-		};
-
-		const jwt = await new SignJWT(payload)
-			.setProtectedHeader({ alg: 'HS256' })
-			.setExpirationTime('30days')
-			.sign(new TextEncoder().encode(ZERO_AUTH_SECRET));
-
-		cookies.set('jwt', jwt, {
-			path: '/',
-			httpOnly: false,
-			secure: import.meta.env.PROD,
-			sameSite: 'lax'
-		});
-	}
 
 	if (!event.locals.session && event.url.pathname.startsWith('/chat')) {
 		redirect(303, '/auth');

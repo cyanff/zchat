@@ -107,6 +107,7 @@ export default $config({
 			},
 			loadBalancer: {
 				public: true,
+				// TODO: listen on https
 				rules: [{ listen: '80/http', forward: '4848/http' }]
 			},
 			transform: {

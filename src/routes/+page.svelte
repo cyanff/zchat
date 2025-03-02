@@ -91,6 +91,10 @@
 
 		const chatID = nanoid();
 		const userID = z.current.userID;
+		if (userID === 'anon') {
+			goto('/auth');
+			return;
+		}
 
 		const truncated = message.slice(0, 128);
 

@@ -49,11 +49,11 @@
 				<Icon src={ArrowUpOnSquare} size="22" />
 			</button>
 
-			<button
+			<!-- <button
 				class="bg-transparent border-none text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)] w-10 h-10 p-2 rounded-full flex items-center justify-center cursor-pointer transition-colors"
 			>
 				<Icon src={UserCircle} size="28" solid />
-			</button>
+			</button> -->
 		</div>
 	</header>
 
