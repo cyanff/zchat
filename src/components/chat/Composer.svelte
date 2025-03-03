@@ -20,6 +20,15 @@
 	// Reference to the textarea element for focusing
 	let textarea: HTMLTextAreaElement;
 
+	let isTouchDevice = false;
+
+	try {
+		document.createEvent('TouchEvent');
+		isTouchDevice = true;
+	} catch (e) {
+		isTouchDevice = false;
+	}
+
 	/**
 	 * Handles form submission by calling the onSubmit callback with the current value
 	 * Only submits if the value is not empty, then resets the textarea height
@@ -42,16 +51,17 @@
 	 *
 	 * @param {KeyboardEvent} event - The keyboard event
 	 */
-	function handleKeydown(event: KeyboardEvent): void {
-		if (event.key === 'Enter') {
-			if (event.ctrlKey || event.metaKey) {
-				// Allow new line insertion when modifier keys are pressed
-				return;
-			} else {
-				// Submit on plain Enter key
-				event.preventDefault();
-				handleSubmit();
-			}
+	function handleKeydown(e: KeyboardEvent): void {
+		if (e.key === 'Enter' && !e.shiftKey && !isTouchDevice) {
+			e.preventDefault();
+			// Do nothing if we're already generating a response
+			// if (isProcessing) {
+			//   toast("Character is still typing, please wait a moment");
+			//   return;
+			// }
+
+			// Send the message if it's not empty
+			handleSubmit();
 		}
 	}
 

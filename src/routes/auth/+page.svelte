@@ -115,7 +115,7 @@
 		flex-direction: column;
 		height: 100vh;
 		box-sizing: border-box;
-		background-color: #000;
+		background-color: hsl(210, 0%, 3%);
 		color: white;
 	}
 

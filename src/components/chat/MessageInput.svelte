@@ -74,16 +74,4 @@
 </div>
 
 <style>
-	.scroll-hidden::-webkit-scrollbar {
-		display: none;
-	}
-
-	.scroll-hidden {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-
-	#message-input {
-		scrollbar-gutter: stable;
-	}
 </style>
