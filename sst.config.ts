@@ -108,7 +108,13 @@ export default $config({
 			loadBalancer: {
 				public: true,
 				// TODO: listen on https
-				rules: [{ listen: '80/http', forward: '4848/http' }]
+				rules: [
+					{ listen: '80/http', forward: '4848/http' },
+					{
+						listen: '443/https',
+						forward: '4848/https'
+					}
+				]
 			},
 			transform: {
 				target: {
@@ -149,14 +155,14 @@ export default $config({
 		// 	{ dependsOn: viewSyncer }
 		// );
 
-		new sst.aws.Service('svelte-kit', {
-			cluster,
-			loadBalancer: {
-				ports: [{ listen: '80/http', forward: '3000/http' }]
-			},
-			dev: {
-				command: 'npm run dev'
-			}
-		});
+		// new sst.aws.Service('svelte-kit', {
+		// 	cluster,
+		// 	loadBalancer: {
+		// 		ports: [{ listen: '80/http', forward: '3000/http' }]
+		// 	},
+		// 	dev: {
+		// 		command: 'npm run dev'
+		// 	}
+		// });
 	}
 });
