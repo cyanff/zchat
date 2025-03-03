@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { Icon } from 'svelte-hero-icons';
-	import { UserCircle } from 'svelte-hero-icons';
-
 	let email = '';
 	let password = '';
 	let isSubmitting = false;
@@ -19,6 +16,16 @@
 		setTimeout(() => {
 			isSubmitting = false;
 		}, 2000);
+	}
+
+	/**
+	 * Populates the form with test user credentials
+	 * Allows quick access for development and testing purposes
+	 * without requiring manual credential entry
+	 */
+	function useTestCredentials() {
+		email = 'hello@moecorp.co';
+		password = 'someterriblepassword123';
 	}
 </script>
 
@@ -69,6 +76,17 @@
 							class="form-input"
 							placeholder="••••••••"
 						/>
+					</div>
+
+					<div class="test-account-container">
+						<button
+							type="button"
+							class="auth-button test-user"
+							on:click={useTestCredentials}
+							disabled={isSubmitting}
+						>
+							Use test account
+						</button>
 					</div>
 
 					<div class="form-actions">
@@ -229,7 +247,6 @@
 
 	.primary:hover:not(:disabled) {
 		background-color: white;
-		transform: translateY(-1px);
 	}
 
 	.secondary {
@@ -241,11 +258,43 @@
 	.secondary:hover:not(:disabled) {
 		background-color: rgba(255, 255, 255, 0.1);
 		border-color: rgba(255, 255, 255, 0.3);
-		transform: translateY(-1px);
 	}
 
-	.auth-button:active:not(:disabled) {
-		transform: translateY(1px);
+	.test-account-container {
+		display: flex;
+		justify-content: flex-start;
+		margin-bottom: 12px;
+	}
+
+	.test-user {
+		background-color: transparent;
+		color: rgba(245, 35, 136, 0.9);
+		font-size: 0.9rem;
+		border: none;
+		position: relative;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		text-decoration: underline;
+		padding: 4px 0;
+		margin: 0;
+		width: auto;
+	}
+
+	.test-user:hover:not(:disabled) {
+		background-color: transparent;
+		color: rgba(245, 35, 136, 1);
+		text-decoration: underline;
+		box-shadow: none;
+	}
+
+	.test-user:active:not(:disabled) {
+		box-shadow: none;
+	}
+
+	.test-user:disabled {
+		background-color: transparent;
+		color: rgba(245, 35, 136, 0.5);
+		border: none;
 	}
 
 	@media (max-width: 480px) {

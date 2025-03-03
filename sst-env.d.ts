@@ -25,6 +25,11 @@ declare module "sst" {
       "type": "sst.aws.Service"
       "url": string
     }
+    "view-syncer": {
+      "service": string
+      "type": "sst.aws.Service"
+      "url": string
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
