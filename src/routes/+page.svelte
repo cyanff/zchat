@@ -76,6 +76,7 @@
 		Cookies.remove('jwt', { path: '/' });
 		Cookies.remove('sb-127-auth-token', { path: '/' });
 		Cookies.remove('sb-jhqetjdtwjisjstphhwa-auth-token', { path: '/' });
+		window.location.reload();
 	}
 
 	/**
