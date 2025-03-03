@@ -7,9 +7,14 @@
     "check-types": "tsc",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "lint": "eslint --ext .ts,.tsx,.js,.jsx src/"
+    "lint": "eslint --ext .ts,.tsx,.js,.jsx src/",
+    "deploy-permissions": "node --env-file ../.env.production --loader ts-node/esm src/deploy-permissions.ts"
   },
   "dependencies": {
     "@rocicorp/zero": "^0.16.2025022602"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
   }
 }
