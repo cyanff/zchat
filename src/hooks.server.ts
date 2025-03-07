@@ -1,14 +1,19 @@
+/**
+ * Supabase +Sveltekit cookie based auth, implemented according to official docs.
+ * @see https://supabase.com/docs/guides/auth/server-side/sveltekit
+ */
+
 import { createServerClient } from '@supabase/ssr';
 import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
-import { config } from '$lib/config';
+import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 const supabase: Handle = async ({ event, resolve }) => {
 	/**
 	 * Creates a Supabase client specific to this server request.
 	 *
 	 * The Supabase client gets the Auth token from the request cookies.
 	 */
-	event.locals.sb = createServerClient(config.supabaseURL, config.supabaseAnonKey, {
+	event.locals.sb = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			/**

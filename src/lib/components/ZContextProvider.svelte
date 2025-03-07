@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { SupabaseClient } from '@supabase/supabase-js';
+	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { Database } from '$lib/sb-types';
-	import { zeroClient, zeroReady, initZero, getZero } from '$lib/stores/zeroStore';
-	import type { Schema } from '../../schema';
-	import type { Zero } from '@rocicorp/zero';
-	import { Z } from 'zero-svelte';
+	import { zeroReady, initZero, getZero } from '$lib/z-store';
 
 	let {
 		sb,

@@ -1,7 +1,4 @@
 <script lang="ts">
-	// Import the necessary from Svelte
-	import { onMount, setContext } from 'svelte';
-
 	// This component will receive the error from SvelteKit's error handler
 	export let error = null;
 
@@ -71,8 +68,8 @@
 		</div>
 
 		<div class="actions">
-			<button on:click={() => window.location.reload()}>Reload Page</button>
-			<button on:click={() => (window.location.href = '/')}>Go to Home</button>
+			<button onclick={() => window.location.reload()}>Reload Page</button>
+			<button onclick={() => (window.location.href = '/')}>Go to Home</button>
 		</div>
 	{:else}
 		<p>No error information available.</p>

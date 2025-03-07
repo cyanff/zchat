@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
 	import SvelteMarkdown from '@humanspeak/svelte-markdown';
-	import SafeHtmlRenderer from './SafeHtmlRenderer.svelte';
 	import { Icon } from 'svelte-hero-icons';
 	import { ClipboardDocument } from 'svelte-hero-icons';
 	import { toast } from 'svelte-sonner';
 	import DOMPurify from 'dompurify';
+
 	/**
-	 * Message component displays individual chat messages with appropriate styling
-	 * based on whether they're from the user or assistant.
+	 * Message component displays individual chat messages.
 	 *
 	 * @prop {string} id - Unique identifier for the message
 	 * @prop {'user' | 'assistant'} role - Determines message styling and position
 	 * @prop {string} content - The message text content
-	 * @prop {boolean} showFooter - Whether to show action buttons (copy/retry)
+	 * @prop {boolean} showFooter - Whether to show action buttons (copy)
 	 */
 	interface Props {
 		id: string;
@@ -25,10 +23,6 @@
 	const { id, role, content, showFooter = false }: Props = $props();
 	const purified = $derived(DOMPurify.sanitize(content));
 
-	/**
-	 * Copies the message content to clipboard
-	 * Provides a seamless way for users to extract information
-	 */
 	function copyContent() {
 		navigator.clipboard.writeText(content);
 		toast.success('Copied to clipboard!');
@@ -42,20 +36,20 @@
 			: 'max-w-[90%]'}"
 	>
 		{#if role === 'user'}
-			<div class="content text-white font-medium">
+			<div class="content">
 				{content}
 			</div>
 		{/if}
 
 		{#if role === 'assistant'}
-			<div class="content prose markdown-content ]">
+			<div class="content prose markdown-content">
 				<SvelteMarkdown source={purified} />
 			</div>
 		{/if}
 
 		{#if showFooter && content.length > 0}
 			<div class="message-footer mt-4 flex justify-start -mx-2.5">
-				<button class="footer-button rounded-full" title="Copy to clipboard" on:click={copyContent}>
+				<button class="footer-button rounded-full" title="Copy to clipboard" onclick={copyContent}>
 					<Icon src={ClipboardDocument} size="20" solid />
 				</button>
 			</div>
@@ -64,13 +58,11 @@
 </div>
 
 <style>
-	/* User message styling to match the dark theme */
-	:global(.bg-user-message) {
+	.bg-user-message {
 		background-color: rgba(255, 255, 255, 0.05);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
-	/* Footer button styling to match the image design */
 	.footer-button {
 		display: flex;
 		align-items: center;
@@ -92,14 +84,13 @@
 	}
 
 	/* Scoped styles for markdown content */
-	/* Scoped styles for markdown content */
 	.markdown-content :global(.prose) {
 		max-width: none;
 		color: rgba(255, 255, 255, 0.9);
 	}
 
 	.markdown-content :global(pre) {
-		background-color: rgba(40, 43, 48, 0.8) !important;
+		background-color: rgba(40, 43, 48, 0.8);
 		border-radius: 8px;
 		padding: 1rem;
 		overflow-x: auto;
@@ -121,7 +112,6 @@
 		color: #e2e2e2;
 	}
 
-	/* Enhanced typography for markdown content */
 	.markdown-content :global(h1),
 	.markdown-content :global(h2),
 	.markdown-content :global(h3),
@@ -141,7 +131,6 @@
 		margin-bottom: 1em;
 	}
 
-	/* Better link styling within markdown content */
 	.markdown-content :global(a) {
 		color: #3b82f6;
 		text-decoration: none;
@@ -158,7 +147,6 @@
 		font-style: normal;
 	}
 
-	/* List styling */
 	.markdown-content :global(ul),
 	.markdown-content :global(ol) {
 		color: rgba(255, 255, 255, 0.8);
@@ -170,7 +158,6 @@
 		margin-bottom: 0.5em;
 	}
 
-	/* Table styling */
 	.markdown-content :global(table) {
 		border-collapse: collapse;
 		width: 100%;

@@ -1,6 +1,6 @@
 import { writable, derived, type Writable } from 'svelte/store';
-import { Zero } from '@rocicorp/zero';
-import { schema, type Schema } from '../../schema';
+import { PUBLIC_PUBLIC_SERVER } from '$env/static/public';
+import { schema, type Schema } from '../schema';
 import { get } from 'svelte/store';
 import { Z } from 'zero-svelte';
 import Cookies from 'js-cookie';
@@ -29,7 +29,7 @@ export async function initZero(userId: string) {
 
 	console.log('zeroStore: Creating new Zero instance with config:', {
 		userID: userId,
-		server: import.meta.env.VITE_PUBLIC_SERVER,
+		server: PUBLIC_PUBLIC_SERVER,
 		schema,
 		kvStore: 'idb'
 	});
@@ -40,9 +40,8 @@ export async function initZero(userId: string) {
 
 	// Create new Zero instance
 	const z = new Z<Schema>({
-		// logLevel: 'debug',
 		userID: userId,
-		server: import.meta.env.VITE_PUBLIC_SERVER,
+		server: PUBLIC_PUBLIC_SERVER,
 		// Clear cookie on auth error
 		auth: (error?: 'invalid-token') => {
 			if (error === 'invalid-token') {

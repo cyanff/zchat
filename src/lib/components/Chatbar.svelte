@@ -1,13 +1,6 @@
-<!-- <script lang="ts">
-	let message = $state('');
-
-</script>
--->
-
 <script lang="ts">
-	import { getZero } from '$lib/stores/zeroStore';
+	import { getZero } from '$lib/z-store';
 	import { nanoid } from 'nanoid';
-	import { onMount } from 'svelte';
 	import Composer from './Composer.svelte';
 
 	interface Props {
@@ -29,7 +22,6 @@
 		const userID = z.current.userID;
 		const id = nanoid();
 
-		// Insert the message into the data store
 		z.current.mutate.messages.insert({
 			id,
 			chat_id: chatID,
@@ -38,7 +30,6 @@
 			created_at: Date.now()
 		});
 
-		// Trigger the AI response generation
 		fetch('/api/generate', {
 			method: 'POST',
 			body: JSON.stringify({
@@ -47,11 +38,9 @@
 			})
 		});
 
-		// Reset input after sending
 		input = '';
 
 		// Scroll to the newly created message
-		// This ensures the user sees their message after sending
 		setTimeout(() => {
 			const el = document.getElementById(id);
 			if (el) {

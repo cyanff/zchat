@@ -1,18 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Sidebar from '$components/layout/Sidebar.svelte';
-	import History from '$components/chat/History.svelte';
+	import History from '$lib/components/History.svelte';
 	import { Icon } from 'svelte-hero-icons';
 	import { ArrowUpOnSquare, UserCircle } from 'svelte-hero-icons';
-	import { getZero } from '$lib/stores/zeroStore';
+	import { getZero } from '$lib/z-store';
 	import { toast } from 'svelte-sonner';
 	import { Query } from 'zero-svelte';
 
 	/**
 	 * Share page displays a read-only view of a chat conversation
 	 * Allows public access to shared conversations without editing capabilities
-	 *
-	 * The slug parameter identifies which chat to display
 	 */
 	const chatID = $derived(page.params.slug);
 	const z = getZero();
@@ -51,7 +48,7 @@
 			<!-- Share button to copy link -->
 			<button
 				class="bg-transparent border-none text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)] w-10 h-10 p-2 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-				on:click={handleCopyLink}
+				onclick={handleCopyLink}
 				title="Copy share link"
 			>
 				<Icon src={ArrowUpOnSquare} size="22" />

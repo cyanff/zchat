@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Message from './Message.svelte';
 	import { Query } from 'zero-svelte';
-	import { getZero } from '$lib/stores/zeroStore';
+	import { getZero } from '$lib/z-store';
 
 	/**
 	 * History component displays the conversation thread between user and assistant
@@ -15,24 +15,24 @@
 	const { chatID }: Props = $props();
 	const z = getZero();
 
-	// Query messages for the current chat, ordered chronologically
-	const ms = $derived(
+	const messages = $derived(
 		new Query(z.current.query.messages.where('chat_id', 'IS', chatID).orderBy('created_at', 'asc'))
 	);
 
 	let rootDiv: HTMLElement;
 
 	/**
-	 * Ensures proper spacing at the bottom of the chat history
-	 * Maintains visual balance when scrolling through conversation
-	 * Prevents last message from being too close to the composer
+	 * Gemini / Claude like scroll "wipe" effect.
+	 * When the user sends a message, that messsage is scrolled to the top.
+	 * We must ensure that there is "content" below the message such that it could be scrolled to top.
+	 * Hence, padding.
 	 */
 	$effect(() => {
-		if (ms.current.length > 1) {
+		if (messages.current.length > 1) {
 			// Wait for DOM to update with the messages
 			setTimeout(() => {
 				const viewportHeight = document.documentElement.clientHeight;
-				const lastMessageId = ms.current[ms.current.length - 1].id;
+				const lastMessageId = messages.current[messages.current.length - 1].id;
 				const lastMessage = document.getElementById(lastMessageId);
 
 				if (lastMessage && rootDiv) {
@@ -44,7 +44,6 @@
 					} else {
 						padding = `${viewportHeight - offset}px`;
 					}
-
 					rootDiv.style.paddingBottom = padding;
 				}
 			}, 0);
@@ -52,31 +51,17 @@
 	});
 </script>
 
-<div class="chat-history relative max-w-[760px] mx-auto px-4 py-6" bind:this={rootDiv}>
-	{#if ms.current.length === 0}{:else}
-		<div class="messages-container flex flex-col gap-6">
-			{#each ms.current as message, index (message.id)}
+<div class="relative max-w-[760px] mx-auto px-4 py-6" bind:this={rootDiv}>
+	{#if messages.current.length !== 0}
+		<div class="flex flex-col gap-6">
+			{#each messages.current as message, index (message.id)}
 				<Message
 					id={message.id}
 					role={message.is_ai ? 'assistant' : 'user'}
 					content={message.text}
-					showFooter={index === ms.current.length - 1 && message.is_ai === true}
+					showFooter={index === messages.current.length - 1 && message.is_ai === true}
 				/>
 			{/each}
 		</div>
 	{/if}
 </div>
-
-<style>
-	.chat-history {
-		/* Ensures smooth scrolling behavior */
-		scroll-behavior: smooth;
-	}
-
-	.empty-state {
-		min-height: 200px;
-		border-radius: 12px;
-		background-color: rgba(255, 255, 255, 0.03);
-		border: 1px dashed rgba(255, 255, 255, 0.1);
-	}
-</style>

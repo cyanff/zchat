@@ -3,8 +3,8 @@
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import ZContextProvider from '$lib/components/ZContextProvider.svelte';
-	import { Toaster, toast } from 'svelte-sonner';
-	import Sidebar from '$components/layout/Sidebar.svelte';
+	import { Toaster } from 'svelte-sonner';
+	import Sidebar from '$lib/components/Sidebar.svelte';
 
 	let { data, children } = $props();
 	let { session, sb } = $derived(data);
@@ -33,9 +33,3 @@
 		{@render children()}
 	</div>
 </ZContextProvider>
-
-<style>
-	:global(html) {
-		font-family: var(--font-sans) !important;
-	}
-</style>

@@ -1,20 +1,19 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import MessageInput from '$components/chat/MessageInput.svelte';
-	import History from '$components/chat/History.svelte';
+	import Chatbar from '$lib/components/Chatbar.svelte';
+	import History from '$lib/components/History.svelte';
 	import { Icon } from 'svelte-hero-icons';
-	import { UserCircle, ArrowUpOnSquare, PlusCircle } from 'svelte-hero-icons';
-	import { getZero } from '$lib/stores/zeroStore';
+	import { ArrowUpOnSquare, PlusCircle } from 'svelte-hero-icons';
+	import { getZero } from '$lib/z-store';
 	import { toast } from 'svelte-sonner';
 
 	const chatID = $derived(page.params.slug);
 
 	const z = getZero();
 
-	const handleLinkClick = () => {
-		// copy chat link to clipboard
+	const handleLinkClick = async () => {
 		navigator.clipboard.writeText(`${window.location.origin}/share/${chatID}`);
-		z.current.mutate.chats.update({
+		await z.current.mutate.chats.update({
 			id: chatID,
 			is_public: true
 		});
@@ -44,23 +43,17 @@
 			</a>
 			<button
 				class="bg-transparent border-none text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)] w-10 h-10 p-2 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-				on:click={handleLinkClick}
+				onclick={handleLinkClick}
 			>
 				<Icon src={ArrowUpOnSquare} size="22" />
 			</button>
-
-			<!-- <button
-				class="bg-transparent border-none text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)] w-10 h-10 p-2 rounded-full flex items-center justify-center cursor-pointer transition-colors"
-			>
-				<Icon src={UserCircle} size="28" solid />
-			</button> -->
 		</div>
 	</header>
 
 	<div class="flex-1 mt-20">
 		<History {chatID} />
 	</div>
-	<MessageInput {chatID} />
+	<Chatbar {chatID} />
 </div>
 
 <style>

@@ -20,8 +20,8 @@
     "@eslint/js": "^9.18.0",
     "@melt-ui/pp": "^0.3.2",
     "@melt-ui/svelte": "^0.86.3",
+    "@supabase/supabase-js": "^2.49.1",
     "@sveltejs/adapter-auto": "^4.0.0",
-    "@sveltejs/adapter-node": "^5.2.12",
     "@sveltejs/adapter-vercel": "^5.6.3",
     "@sveltejs/kit": "^2.16.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
@@ -46,15 +46,13 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.1.1",
     "@humanspeak/svelte-markdown": "^0.7.18",
     "@rocicorp/zero": "^0.16.2025022602",
     "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.49.1",
     "@types/js-cookie": "^3.0.6",
     "@types/pg": "^8.11.11",
+    "arctic": "^3.5.0",
     "dompurify": "^3.2.4",
-    "express": "^4.21.2",
     "js-cookie": "^3.0.5",
     "nanoid": "^5.1.2",
     "openai": "^4.86.1",
@@ -62,9 +60,7 @@
     "sql-template-tag": "^5.2.1",
     "supabase": "^2.15.8",
     "svelte-autosize": "^1.1.5",
-    "svelte-kit-sst": "2.43.5",
     "svelte-sonner": "^0.3.28",
-    "svelte-typeahead": "^5.0.0",
     "zero-svelte": "^0.2.0"
   }
 }

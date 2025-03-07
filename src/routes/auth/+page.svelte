@@ -49,7 +49,7 @@
 				<h1 class="auth-title">Welcome</h1>
 				<p class="auth-subtitle">Sign in to continue to ZChat</p>
 
-				<form method="POST" action="?/login" on:submit={handleSubmit} class="auth-form">
+				<form method="POST" action="?/login" onsubmit={handleSubmit} class="auth-form">
 					<div class="form-group">
 						<label for="email" class="form-label">Email</label>
 						<input
@@ -82,7 +82,7 @@
 						<button
 							type="button"
 							class="auth-button test-user"
-							on:click={useTestCredentials}
+							onclick={useTestCredentials}
 							disabled={isSubmitting}
 						>
 							Use test account

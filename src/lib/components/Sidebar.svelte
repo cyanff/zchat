@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getZero } from '$lib/stores/zeroStore';
+	import { getZero } from '$lib/z-store';
 	import { Query } from 'zero-svelte';
 	import { Icon } from 'svelte-hero-icons';
 	import { MagnifyingGlass, PlusCircle, ArrowsRightLeft } from 'svelte-hero-icons';
@@ -9,25 +9,17 @@
 		activeChatID?: string;
 	}
 
-	// The active chat should be highlighted in the sidebar
 	const { activeChatID }: Props = $props();
-
-	// Key used for storing sidebar state in localStorage
 	const SIDEBAR_STATE_KEY = 'sidebar-state';
-
 	const z = getZero();
 
 	// State management for sidebar behavior
 	let isExpanded = $state(false);
 	let isPinned = $state(false);
 	let searchQuery = $state('');
-
-	// Flag to track if component has mounted
-	// Used to prevent animation on initial load
 	let isMounted = $state(false);
 
-	// Initialize the base query
-	const baseQuery = z.current.query.chats.where('is_public', 'IS NOT', true);
+	const baseQ = z.current.query.chats.where('is_public', 'IS NOT', true);
 
 	/**
 	 * Creates a filtered query of chats based on the current search query
@@ -37,52 +29,32 @@
 	 * - Results are always ordered by creation date (newest first)
 	 */
 	function getFilteredChats() {
-		let query = baseQuery;
+		let q = baseQ;
 
 		// Only apply title filter if search query is not empty
 		if (searchQuery.trim()) {
-			query = query.where('title', 'ILIKE', `%${searchQuery}%`);
+			q = q.where('title', 'ILIKE', `%${searchQuery}%`);
 		}
 
-		return query.orderBy('created_at', 'desc');
+		return q.orderBy('created_at', 'desc');
 	}
 
 	// Create the chats query
 	let chats = $derived(new Query(getFilteredChats()));
 
 	/**
-	 * Checks if localStorage is available in the current environment
-	 * Returns false if localStorage is not available or throws an error
-	 * This prevents errors in environments where localStorage is restricted
-	 */
-	function isLocalStorageAvailable(): boolean {
-		try {
-			const testKey = '__storage_test__';
-			localStorage.setItem(testKey, testKey);
-			localStorage.removeItem(testKey);
-			return true;
-		} catch (e) {
-			return false;
-		}
-	}
-
-	/**
 	 * Loads the sidebar state from localStorage if available
 	 * Falls back to default values if no saved state exists
 	 */
 	function loadSidebarState(): void {
-		if (!isLocalStorageAvailable()) return;
-
 		try {
 			const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
 			if (savedState) {
-				const { isPinned: savedIsPinned, isExpanded: savedIsExpanded } = JSON.parse(savedState);
+				const { isPinned: savedIsPinned } = JSON.parse(savedState);
 				isPinned = savedIsPinned;
-				isExpanded = savedIsExpanded || isPinned; // If pinned, ensure expanded
 			}
 		} catch (error) {
 			console.error('Failed to load sidebar state:', error);
-			// Continue with default values on error
 		}
 	}
 
@@ -91,12 +63,9 @@
 	 * Only persists the pinned and expanded states, not the search query
 	 */
 	function saveSidebarState(): void {
-		if (!isLocalStorageAvailable()) return;
-
 		try {
 			const stateToSave = {
-				isPinned,
-				isExpanded
+				isPinned
 			};
 			localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(stateToSave));
 		} catch (error) {
@@ -111,23 +80,10 @@
 	 */
 	function togglePin() {
 		isPinned = !isPinned;
-		if (isPinned) {
-			isExpanded = true;
-		}
-
-		// Save state after changes
+		if (isPinned) isExpanded = true;
 		saveSidebarState();
-
-		// Notify parent components about pin state changes
-		const event = new CustomEvent('pinChange', { detail: { isPinned } });
-		document.dispatchEvent(event);
 	}
 
-	/**
-	 * Expands the sidebar when mouse enters the trigger area
-	 * Only takes effect when sidebar is not pinned
-	 * Persists the state change to localStorage
-	 */
 	function expandSidebar() {
 		if (!isPinned) {
 			isExpanded = true;
@@ -135,11 +91,6 @@
 		}
 	}
 
-	/**
-	 * Collapses the sidebar when mouse leaves
-	 * Only takes effect when sidebar is not pinned
-	 * Persists the state change to localStorage
-	 */
 	function collapseSidebar() {
 		if (!isPinned) {
 			isExpanded = false;
@@ -162,20 +113,20 @@
 
 <!-- Hover trigger area - invisible element that expands sidebar on hover -->
 <div
-	class="fixed top-0 left-0 h-screen w-[40px] z-[99]"
+	class="fixed top-0 left-0 h-screen w-[160px] z-[99]"
 	role="complementary"
-	on:mouseenter={expandSidebar}
+	onmouseenter={expandSidebar}
 ></div>
 
 <div
 	id="sidebar"
 	role="navigation"
 	class="fixed top-0 left-0 h-screen w-[280px] bg-[#1a1a1a] border-r border-[rgba(255,255,255,0.1)] {isMounted
-		? 'transition-all duration-300 ease-in-out'
+		? 'transition-all duration-200 ease-in-out'
 		: ''} overflow-hidden z-[100] flex flex-col {isExpanded
 		? 'translate-x-0 shadow-md shadow-black/30'
 		: '-translate-x-full shadow-none'} {isPinned ? 'translate-x-0' : ''}"
-	on:mouseleave={collapseSidebar}
+	onmouseleave={collapseSidebar}
 >
 	<div
 		class="flex justify-between items-center px-5 py-[18px] border-b border-[rgba(255,255,255,0.1)]"
@@ -203,7 +154,7 @@
 			<button
 				aria-label="pin"
 				class="bg-transparent border-none cursor-pointer text-[rgba(255,255,255,0.7)] p-2 rounded-full transition-all duration-200 hover:bg-[rgba(255,255,255,0.1)]"
-				on:click={togglePin}
+				onclick={togglePin}
 				title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
 			>
 				<Icon src={ArrowsRightLeft} size="20" class={isPinned ? 'rotate-45 text-[#f52388]' : ''} />
@@ -245,7 +196,6 @@
 				>
 					<div class="flex-1 min-w-0">
 						<div class="font-medium text-sm text-white truncate">{chat.title}</div>
-						<!-- <div class="text-xs text-[rgba(255,255,255,0.5)]">{new Date(chat.created_at).toLocaleDateString()}</div> -->
 					</div>
 				</a>
 			{:else}
@@ -258,17 +208,4 @@
 			{/each}
 		</div>
 	</div>
-
-	<!-- Add a style for the scrollbar to match the ChatFront component -->
-	<style>
-		/* Hide scrollbar for clean UI while maintaining functionality */
-		.scroll-hidden::-webkit-scrollbar {
-			display: none;
-		}
-
-		.scroll-hidden {
-			-ms-overflow-style: none;
-			scrollbar-width: none;
-		}
-	</style>
 </div>

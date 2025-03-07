@@ -79,13 +79,13 @@
 		bind:value
 		class="composer-input min-h-[56px] placeholder:overflow-none placeholder:select-none max-h-96 w-full resize-none bg-transparent py-1 px-2 text-white scroll-hidden"
 		{placeholder}
-		on:keydown={handleKeydown}
+		onkeydown={handleKeydown}
 		use:autosize
 	></textarea>
 
 	<button
 		type="button"
-		on:click={handleSubmit}
+		onclick={handleSubmit}
 		class="submit-button ml-2 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-white transition-opacity focus:outline-none"
 		aria-label={submitLabel}
 	>

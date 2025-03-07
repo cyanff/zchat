@@ -8,18 +8,18 @@
 		MagnifyingGlass,
 		UserCircle
 	} from 'svelte-hero-icons';
-	import Composer from '$components/chat/Composer.svelte';
+	import Composer from '$lib/components/Composer.svelte';
 	import { tick } from 'svelte';
 	import { nanoid } from 'nanoid';
 	import { goto } from '$app/navigation';
-	import { getZero } from '$lib/stores/zeroStore';
+	import { getZero } from '$lib/z-store.js';
 	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 	import { fly } from 'svelte/transition';
 	import Cookies from 'js-cookie';
 
-	const z = getZero();
-
 	const { data } = $props();
+
+	const z = getZero();
 
 	let inputValue = $state('');
 
@@ -87,7 +87,6 @@
 	 * @param {string} message - The submitted message
 	 */
 	async function handleSubmit(message: string): Promise<void> {
-		console.log('Message submitted ::', message);
 		inputValue = '';
 
 		const chatID = nanoid();
@@ -199,7 +198,14 @@
 <div id="content" class={`flex-1 w-full transition-[margin-left] duration-300 ease-in-out`}>
 	<div class="app-container">
 		<header class="header">
-			<a href="/" class="flex items-center gap-4 text-lg font-semibold group">
+			<a
+				href="/"
+				class="flex items-center gap-4 text-lg font-semibold group"
+				onclick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+				}}
+			>
 				<img
 					src="/zero.png"
 					alt="ZChat Logo"
@@ -222,11 +228,11 @@
 						transition:fly={{ duration: 100, opacity: 0 }}
 					>
 						{#if !isSignedIn}
-							<div class="dropdown-item" use:melt={$item} on:click={handleLogin}>Login</div>
+							<div class="dropdown-item" use:melt={$item} onclick={handleLogin}>Login</div>
 						{:else}
-							<div class="dropdown-item" use:melt={$item} on:click={handleSignout}>Sign Out</div>
+							<div class="dropdown-item" use:melt={$item} onclick={handleSignout}>Sign Out</div>
 						{/if}
-						<div use:melt={$arrow} class="dropdown-arrow" />
+						<div use:melt={$arrow} class="dropdown-arrow"></div>
 					</div>
 				{/if}
 			</div>
@@ -248,19 +254,19 @@
 			</div>
 
 			<div class="features">
-				<button class="feature-button" on:click={() => setExamplePrompt('research')}>
+				<button class="feature-button" onclick={() => setExamplePrompt('research')}>
 					<Icon src={DocumentText} size="20" />
 					Research
 				</button>
-				<button class="feature-button" on:click={() => setExamplePrompt('brainstorm')}>
+				<button class="feature-button" onclick={() => setExamplePrompt('brainstorm')}>
 					<Icon src={Bolt} size="20" />
 					Brainstorm
 				</button>
-				<button class="feature-button" on:click={() => setExamplePrompt('analyzeData')}>
+				<button class="feature-button" onclick={() => setExamplePrompt('analyzeData')}>
 					<Icon src={ChartBar} size="20" />
 					Analyze Data
 				</button>
-				<button class="feature-button" on:click={() => setExamplePrompt('code')}>
+				<button class="feature-button" onclick={() => setExamplePrompt('code')}>
 					<Icon src={CodeBracket} size="20" />
 					Code
 				</button>

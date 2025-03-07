@@ -9,7 +9,12 @@ interface GetContextPageOptions {
 }
 
 const pageSize = 10;
-
+/**
+ * Retrieves a page of messages from the database
+ * @param pool - The database connection pool
+ * @param options - Configuration for context retrieval
+ * @returns Promise resolving to an array of messages in chronological order
+ */
 async function getContextPage(
 	pool: Pool,
 	options: GetContextPageOptions
@@ -19,7 +24,6 @@ async function getContextPage(
 	const limit = pageSize;
 
 	try {
-		// Build the base query
 		let query = sql`
       SELECT 
         id,
@@ -31,7 +35,6 @@ async function getContextPage(
       WHERE chat_id = ${chatID}
     `;
 
-		// Add fromMessageID filter if provided
 		if (fromMessageID) {
 			query = sql`
         ${query}
@@ -39,7 +42,6 @@ async function getContextPage(
       `;
 		}
 
-		// Add ordering and pagination
 		query = sql`
       ${query}
       ORDER BY created_at DESC
